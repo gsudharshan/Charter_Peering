@@ -1,0 +1,66 @@
+#
+# CIOPS team will supply the variables needed for each router, peer or JIRA ticket
+# CIOPS team can provide one yaml file for multiple routers or for a specific peer turn up in multiple routers, only care should be in grouping routers based on AS20115 or AS7843 (templates are AS based)
+# CIOPS team - please dont add or delete lines, just leave the fields empty if you dont have info to fill
+# Each node shown below will generate configurations based on the router type/AS to which it belongs. Backbone PD needs to ensure to use the correct JINJA2 templates to generate the configurations
+
+---
+
+nodes:
+
+  prr02snjsca:
+    name: ATT
+    type: PEER
+    jira: CIOPS-18381
+
+    lag_id_1: 1515
+    lag_id_1_add: 300
+    lag_bw_1: 400
+    lag_grant_1: chn00499491
+    lag_id_1_links:
+                 et-1/0/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
+                 et-1/1/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
+                 et-1/2/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
+
+    lag_id_2: 1875
+    lag_id_2_add: 300
+    lag_bw_2: 500
+    lag_grant_2: chn00499493
+    lag_id_2_links:
+                 et-0/0/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373150-Z, pcid: 179545 }
+                 et-0/1/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
+                 et-0/2/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
+
+    bgp:
+       peer_ipv4_1: 209.85.168.184
+       peer_ipv4_2: 96.34.3.2
+       remote_as: 7018
+
+
+  pr3.dfw10:
+    name: akamai
+    type: PEER
+    jira: CIOPS-18382
+
+    lag_id_1: 1515
+    lag_id_1_add: 300
+    lag_bw_1: 400
+    lag_grant_1: chn00499491
+    lag_id_1_links:
+                 et-1/0/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
+                 et-1/1/0: { int_bw: 100, int_grnt: chn00499493, ccid: 21373150-Z, pcid: 179130 }
+                 et-1/2/0: { int_bw: 100, int_grnt: chn00499494, ccid: 21373151-Z, pcid: 179121 }
+
+    lag_id_2: 1875
+    lag_id_2_add: 300
+    lag_bw_2: 500
+    lag_grant_2: chn00499493
+    lag_id_2_links:
+                 et-0/0/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373150-Z, pcid: 179545 }
+                 et-0/1/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179146 }
+                 et-0/2/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179348 }
+
+    bgp:
+       peer_ipv4_1: 209.85.168.184
+       peer_ipv4_2: 96.34.3.2
+       remote_as: 7018

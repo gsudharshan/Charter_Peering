@@ -1,0 +1,127 @@
+{% set node = nodes[inventory_hostname] %}
+
+This Peering Bundle config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity BE{{node.lag_id_1}}-{{ node.lag_bw_1 }}G and BE{{node.lag_id_2}}-{{ node.lag_bw_2 }}G
+
+!CHANGE SPECIFIC PRE-CHECKS BELOW!
+
+Router Name: {{ inventory_hostname }}
+
+{% if node.lag_id_1 != None %}
+show int be{{ node.lag_id_1 }}
+
+!Expected Output : Check be{{ node.lag_id_1 }} existing links
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}
+show int be{{ node.lag_id_2 }}
+
+!Expected Output : Check be{{ node.lag_id_2 }} existing links
+{% else %}
+{% endif %}
+
+{% if node.lag_id_1 != None %}
+{% for intf,intf_attr in node.lag_id_1_links.items() %}
+show interface {{ intf }}
+show controllers {{ intf }} phy | i dB
+{% endfor %}
+
+!Expected Output: link light level should be good
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}   
+{% for intf,intf_attr in node.lag_id_2_links.items() %}
+show interface {{ intf }}
+show controllers {{ intf }} phy | i dB
+{% endfor %}
+!Expected Output: link light level should be good
+{% else %}
+{% endif %}
+
+
+
+!CHANGE SPECIFIC CONFIGURATIONS BELOW!
+
+START
+
+Router Name: {{ inventory_hostname }}
+
+!Interface Config LAG 1!
+{% if node.lag_id_1 != None %}
+{% for intf,intf_attr in node.lag_id_1_links.items() %}
+interface {{ intf }}
+interface {{ intf }} description [TYPE={{ node.type }}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID:{{ intf_attr.pcid }}]
+interface {{ intf }} bundle id {{ node.lag_id_1 }} mode active
+interface {{ intf }} lacp period short
+interface {{ intf }} carrier-delay up 500 down 0
+interface {{ intf }} dampening 1 750 2000 4
+{% endfor %}
+{% else %}
+{% endif %}
+interface be{{ node.lag_id_1 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_1 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grant_1 }}][IP={{ node.bgp.peer_ipv4_1 }}]"
+
+!Interface Config LAG 2!
+{% if node.lag_id_2 != None %}
+{% for intf,intf_attr in node.lag_id_2_links.items() %}
+interface {{ intf }}
+interface {{ intf }} description [TYPE={{ node.type }}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID:{{ intf_attr.pcid }}] 
+interface {{ intf }} bundle id {{ node.lag_id_2 }} mode active
+interface {{ intf }} lacp period short
+interface {{ intf }} carrier-delay up 500 down 0
+interface {{ intf }} dampening 1 750 2000 4
+{% endfor %}
+{% else %}
+{% endif %}
+interface be{{ node.lag_id_2 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_2 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grant_2 }}][IP={{ node.bgp.peer_ipv4_2 }}]"
+
+
+END
+
+!CHANGE SPECIFIC POST-CHECKS!
+
+Router Name: {{ inventory_hostname }}
+
+{% if node.lag_id_1 != None %}
+show int be{{ node.lag_id_1 }}
+
+!Expected Output : Check be{{ node.lag_id_1 }} has the new links active in the bundle
+
+show int be{{ node.lag_id_1 }} | in "rate|drop|err"
+
+!Expected Output : Check be{{ node.lag_id_1 }} to make to there are no errors or drops
+{% else %}
+{% endif %}
+
+
+
+{% if node.lag_id_2 != None %}
+show int be{{ node.lag_id_2 }}
+
+!Expected Output : Check be{{ node.lag_id_2 }} has the new links active in the bundle
+
+show int be{{ node.lag_id_2 }} | in "rate|drop|err"
+
+!Expected Output : Check be{{ node.lag_id_2 }} to make to there are no errors or drops 
+{% else %}
+{% endif %}
+
+
+
+{% if node.lag_id_1 != None %}
+{% for intf,intf_attr in node.lag_id_1_links.items() %}
+show interface {{ intf }} | in "rate|drop|err"
+{% endfor %}
+
+!Expected Output : Make sure there are no errors or drops
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}
+{% for intf,intf_attr in node.lag_id_2_links.items() %}
+show interface {{ intf }} | in "rate|drop|err"
+{% endfor %}
+
+!Expected Output : Make sure there are no errors or drops!
+{% else %}
+{% endif %}

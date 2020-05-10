@@ -1,0 +1,369 @@
+{% set node = nodes[inventory_hostname] %}
+
+{% if node.lag_id_2 != None %}
+This Peering config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity AE{{node.lag_id_1}}-{{ node.lag_bw_1 }}G and AE{{node.lag_id_2}}-{{ node.lag_bw_2 }}G
+{% elif node.lag_id_1 != None %}
+This Peering config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity AE{{node.lag_id_1}}-{{ node.lag_bw_1 }}G
+{% else %}
+This Public Peering config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }}
+{% endif %}
+
+
+!CHANGE SPECIFIC PRE-CHECKS BELOW!
+
+Router Name: {{ inventory_hostname }}
+
+{% if node.lag_id_1 != None %}
+show interfaces ae{{ node.lag_id_1 }}
+show lacp interfaces ae{{ node.lag_id_1 }}
+!Expected Output : ae{{ node.lag_id_1 }} should free
+{% else %}
+ping {{node.bgp.peer_ipv4_1}} source {{node.lag_local_ipv4_1.split("/")[0]}} count 1000 rapid 
+ping {{node.bgp.peer_ipv6_1}} source {{node.lag_local_ipv6_1.split("/")[0]}} count 1000 rapid
+{% endif %}
+
+{% if node.lag_id_2 != None %}
+show interfaces ae{{ node.lag_id_2 }}
+show lacp interfaces ae{{ node.lag_id_2 }}
+!Expected Output : ae{{ node.lag_id_2 }} should free
+{% else %}
+{% endif %}
+
+{% if node.lag_id_1 != None %}
+{% for intf,intf_attr in node.lag_id_1_links.items() %}
+show interfaces {{ intf }}
+show interfaces diagnostics optics {{ intf }} | match dBm | except threshold
+!Expected Output: link light level should be good and no errors to be seen!
+{% endfor %}
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}   
+{% for intf,intf_attr in node.lag_id_2_links.items() %}
+show interfaces {{ intf }}
+show interfaces diagnostics optics {{ intf }} | match dBm | except threshold
+!Expected Output: link light level should be good and no errors to be seen
+{% endfor %}
+{% else %}
+{% endif %}
+
+{% if node.lag_id_1 != None %}
+show route {{ node.lag_local_ipv4_1 }}
+!Expected Output: {{ node.lag_local_ipv4_1 }} IPv4 Space should be free and should not be present in the routing table
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}   
+show route {{ node.lag_local_ipv4_2 }}
+!Expected Output: {{ node.lag_local_ipv4_2 }} IPv4 Space should be free and should not be present in the routing table
+{% else %}
+{% endif %}
+
+{% if node.lag_id_1 != None %}
+show route {{ node.lag_local_ipv6_1 }}
+!Expected Output: {{ node.lag_local_ipv6_1 }} IPv6 Space should be free and should not be present in the routing table
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}   
+show route {{ node.lag_local_ipv6_2 }}
+!Expected Output: {{ node.lag_local_ipv6_2 }} IPv6 Space should be free and should not be present in the routing table
+{% else %}
+{% endif %}
+
+sh configuration | match p-{{ node.bgp.remote_as }}-{{ node.name|upper }} | display set
+!Expected Output: Ensure the new group being created doesnt exist already. if group already exists, notify P&D, only neighbor need to be added to existing group
+!WARNING: If BGP group already existed, chances of overwrite possible!! USE CAUTION!!
+
+
+show bgp summary | m {{ node.bgp.remote_as }}
+!Expected Output: Check if BGP neighbors exist, if first turn up, then there should be no output
+
+show route advertising-protocol bgp {{ node.bgp.peer_ipv4_1 }}
+!Expected Output: No BGP neighbor should exist
+
+{% if node.lag_id_2 != None %}   
+show route advertising-protocol bgp {{ node.bgp.peer_ipv4_2}}
+!Expected Output: No BGP neighbor should exist
+{% else %}
+{% endif %}
+
+show route receive-protocol bgp {{ node.bgp.peer_ipv4_1 }}
+!Expected Output: No BGP neighbor should exist
+
+{% if node.lag_id_2 != None %}   
+show route receive-protocol bgp {{ node.bgp.peer_ipv4_2 }}
+!Expected Output: No BGP neighbor should exist
+{% else %}
+{% endif %}
+
+show route advertising-protocol bgp {{ node.bgp.peer_ipv6_1 }}
+!Expected Output: No BGP neighbor should exist
+
+{% if node.lag_id_2 != None %}   
+show route advertising-protocol bgp {{ node.bgp.peer_ipv6_2 }}
+!Expected Output: No BGP neighbor should exist
+{% else %}
+{% endif %}
+
+show route receive-protocol bgp {{ node.bgp.peer_ipv6_1 }}
+!Expected Output: No BGP neighbor should exist
+!
+
+{% if node.lag_id_2 != None %}   
+show route receive-protocol bgp {{ node.bgp.peer_ipv6_2 }}
+!Expected Output: No BGP neighbor should exist
+{% else %}
+{% endif %}
+!
+
+
+
+!CHANGE SPECIFIC CONFIGURATIONS BELOW!
+
+START
+
+Router Name: {{ inventory_hostname }}
+
+{% if node.lag_id_1 != None %}
+!LAG 1 Interface Configs!
+set interfaces ae{{ node.lag_id_1 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_1 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][IP={{ node.bgp.peer_ipv4_1 }}]"
+set interfaces ae{{ node.lag_id_1 }} aggregated-ether-options minimum-links 1
+set interfaces ae{{ node.lag_id_1 }} aggregated-ether-options link-speed {{ node.lag_id_1_lacp }}g
+set interfaces ae{{ node.lag_id_1 }} aggregated-ether-options lacp active
+set interfaces ae{{ node.lag_id_1 }} unit 0 family inet apply-groups rpf
+set interfaces ae{{ node.lag_id_1 }} unit 0 family inet filter input EDGE_IN_IPV4_FILTER
+set interfaces ae{{ node.lag_id_1 }} unit 0 family inet address {{ node.lag_local_ipv4_1 }}
+set interfaces ae{{ node.lag_id_1 }} unit 0 family inet6 apply-groups IPv6-RPF-GROUP
+set interfaces ae{{ node.lag_id_1 }} unit 0 family inet6 filter input EDGE_IN_IPV6_FILTER
+set interfaces ae{{ node.lag_id_1 }} unit 0 family inet6 address {{ node.lag_local_ipv6_1 }}
+set class-of-service interfaces ae{{ node.lag_id_1 }} apply-groups PEER_QOS
+
+!Interface Config LAG!
+
+{% for intf, intf_attr in node.lag_id_1_links.items() %}
+set interfaces {{ intf }} description "[TYPE={{node.type}}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID={{ intf_attr.pcid }}]"
+set interfaces {{ intf }} hold-time up 500
+set interfaces {{ intf }} hold-time down 0
+set interfaces {{ intf }} damping half-life 1
+set interfaces {{ intf }} damping max-suppress 4
+set interfaces {{ intf }} damping reuse 750
+set interfaces {{ intf }} damping suppress 2000
+set interfaces {{ intf }} damping enable
+set interfaces {{ intf }} gigether-options 802.3ad ae{{ node.lag_id_1 }}
+{% endfor %}
+{% else %}
+{% endif %}
+
+
+{% if node.lag_id_2 != None %}
+!LAG 2 Interface Configs!
+set interfaces ae{{ node.lag_id_2 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_2 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][IP={{ node.bgp.peer_ipv4_2 }}]" 
+set interfaces ae{{ node.lag_id_2 }} aggregated-ether-options minimum-links 1
+set interfaces ae{{ node.lag_id_2 }} aggregated-ether-options link-speed {{ node.lag_id_2_lacp}}g
+set interfaces ae{{ node.lag_id_2 }} aggregated-ether-options lacp active
+set interfaces ae{{ node.lag_id_2 }} unit 0 family inet apply-groups rpf
+set interfaces ae{{ node.lag_id_2 }} unit 0 family inet filter input EDGE_IN_IPV4_FILTER
+set interfaces ae{{ node.lag_id_2 }} unit 0 family inet address {{ node.lag_local_ipv4_2 }}
+set interfaces ae{{ node.lag_id_2 }} unit 0 family inet6 apply-groups IPv6-RPF-GROUP
+set interfaces ae{{ node.lag_id_2 }} unit 0 family inet6 filter input EDGE_IN_IPV6_FILTER
+set interfaces ae{{ node.lag_id_2 }} unit 0 family inet6 address {{ node.lag_local_ipv6_2 }}
+set class-of-service interfaces ae{{ node.lag_id_2 }} apply-groups PEER_QOS
+
+!Interface Config LAG!
+
+{% for intf, intf_attr in node.lag_id_2_links.items() %}
+set interfaces {{ intf }} description "[TYPE={{node.type}}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID={{ intf_attr.pcid }}]"
+set interfaces {{ intf }} hold-time up 500
+set interfaces {{ intf }} hold-time down 0
+set interfaces {{ intf }} damping half-life 1
+set interfaces {{ intf }} damping max-suppress 4
+set interfaces {{ intf }} damping reuse 750
+set interfaces {{ intf }} damping suppress 2000
+set interfaces {{ intf }} damping enable
+set interfaces {{ intf }} gigether-options 802.3ad ae{{ node.lag_id_2 }}
+{% endfor %}
+{% else %}
+{% endif %}
+
+
+
+!BGP Configs!
+
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} apply-groups bgp-peer
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} description {{ node.name|upper}}_AS{{node.bgp.remote_as }}_SFI
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} import ( PEER-IN && AS{{ node.bgp.remote_as }}-IN )
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} family inet unicast prefix-limit maximum {{ node.bgp.ipv4_prefix_limit }}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} family inet unicast prefix-limit teardown {{ node.bgp.ipv4_prefix_limit_teardown }}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} family inet6 unicast prefix-limit maximum {{ node.bgp.ipv6_prefix_limit }}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} family inet6 unicast prefix-limit teardown {{ node.bgp.ipv6_prefix_limit_teardown }}
+{% if node.bgp.group_md5 != None %}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} authentication-key {{ node.bgp.group_md5 }}
+{% else %}
+{% endif %}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} export PEER-OUT-v6
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} export ( AS{{ node.bgp.remote_as }}-OUT && PEER-OUT )
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} peer-as {{ node.bgp.remote_as }}
+{% if node.lag_id_2 != None %}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} multipath
+{% else %}
+{% endif %}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv4_1 }}
+{% if node.bgp.ipv4_md5 != None %}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv4_1 }} authentication-key {{ node.bgp.ipv4_md5 }}
+{% else %}
+{% endif %}
+{% if node.lag_id_2 != None %}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv4_2 }}
+{% if node.bgp.ipv4_md5 != None %}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv4_2 }} authentication-key {{ node.bgp.ipv4_md5 }}
+{% else %}
+{% endif %}
+{% else %}
+{% endif %}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_1 }} family inet6 unicast
+{% if node.bgp.ipv6_md5 != None %} 
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_1 }} authentication-key {{ node.bgp.ipv6_md5 }} 
+{% else %}
+{% endif %}
+{% if node.lag_id_2 != None %}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_2 }} family inet6 unicast
+{% if node.bgp.ipv6_md5 != None %}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_1 }} authentication-key {{ node.bgp.ipv6_md5 }}
+{% else %}
+{% endif %}
+{% else %}
+{% endif %}
+
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-OUT term SUPPRESS from community SUPPRESS-TO-AS{{ node.bgp.remote_as }}
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-OUT term SUPPRESS then reject
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-OUT term PREPEND-ONE from community PREPEND-ONE-AS{{ node.bgp.remote_as }}
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-OUT term PREPEND-ONE then as-path-prepend 7843
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-OUT term PREPEND-ONE then accept
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-OUT term PREPEND-TWO from community PREPEND-TWO-AS{{ node.bgp.remote_as }}
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-OUT term PREPEND-TWO then as-path-prepend "7843 7843"
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-OUT term PREPEND-TWO then accept
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-OUT term PREPEND-THREE from community PREPEND-THREE-AS{{ node.bgp.remote_as }}
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-OUT term PREPEND-THREE then as-path-prepend "7843 7843 7843"
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-OUT term PREPEND-THREE then accept
+
+set policy-options community PREPEND-ONE-AS{{ node.bgp.remote_as }} members 65001:{{ node.bgp.remote_as }}
+set policy-options community PREPEND-THREE-AS{{ node.bgp.remote_as }} members 65003:{{ node.bgp.remote_as }}
+set policy-options community PREPEND-TWO-AS{{ node.bgp.remote_as }} members 65002:{{ node.bgp.remote_as }}
+set policy-options community SUPPRESS-TO-AS{{ node.bgp.remote_as }} members 65000:{{ node.bgp.remote_as }}
+
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-IN term LOCAL-PREF then local-preference 100
+set policy-options policy-statement AS{{ node.bgp.remote_as }}-IN term LOCAL-PREF then accept
+
+END
+
+
+!CHANGE SPECIFIC POST-CHECKS BELOW!
+
+Router Name: {{ inventory_hostname }}
+
+{% if node.lag_id_1 != None %}
+show int ae{{ node.lag_id_1 }}
+show lacp interfaces ae{{ node.lag_id_1 }}
+!Expected Output : ae{{ node.lag_id_1 }} should be UP
+
+show route {{ node.lag_local_ipv4_1 }}
+!Expected Output: {{ node.lag_local_ipv4_1 }} IPv4 Space should be present as connected route in the routing table
+
+show route {{ node.lag_local_ipv6_1 }}
+!Expected Output: {{ node.lag_local_ipv6_1 }} IPv6 Space should be present as connected route in the routing table
+
+ping {{node.bgp.peer_ipv4_1}} source {{node.lag_local_ipv4_1.split("/")[0]}} count 1000 rapid
+ping {{node.bgp.peer_ipv6_1}} source {{node.lag_local_ipv6_1.split("/")[0]}} count 1000 rapid
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}
+show int ae{{ node.lag_id_2 }}
+show lacp interfaces ae{{ node.lag_id_2 }}
+!Expected Output : ae{{ node.lag_id_2 }} should be UP
+
+show route {{ node.lag_local_ipv4_2 }}
+!Expected Output: {{ node.lag_local_ipv4_2 }} IPv4 Space should be present as connected route in the routing table
+
+show route {{ node.lag_local_ipv6_2 }}
+!Expected Output: {{ node.lag_local_ipv6_2 }} IPv6 Space should be present as connected route in the routing table
+
+ping {{node.bgp.peer_ipv4_2}} source {{node.lag_local_ipv4_2.split("/")[0]}} count 1000 rapid
+ping {{node.bgp.peer_ipv6_2}} source {{node.lag_local_ipv6_2.split("/")[0]}} count 1000 rapid
+{% else %}
+{% endif %}
+
+show bgp summary | m {{ node.bgp.remote_as }}
+!Expected Output: Newly configured {{ node.bgp.peer_ipv4_1 }} & {{ node.bgp.peer_ipv6_1 }} BGP neighbors state to be UP
+{% if node.lag_id_2 != None %}   
+!Expected Output: Newly configured {{ node.bgp.peer_ipv4_2 }} & {{ node.bgp.peer_ipv6_2 }} BGP neighbors state to be UP
+{% else %}
+{% endif %}
+
+show bgp neighbor {{ node.bgp.peer_ipv4_1 }}
+show bgp neighbor {{ node.bgp.peer_ipv6_1 }}
+!Expected Output: Check if the newly configured neighbors are looking good.
+
+{% if node.lag_id_2 != None %}
+show bgp neighbor node.bgp.peer_ipv4_2
+show bgp neighbor node.bgp.peer_ipv6_2
+!Expected Output: Check if the newly configured neighbors are looking good.
+{% else %}
+{% endif %}
+
+show route advertising-protocol bgp {{ node.bgp.peer_ipv4_1 }}
+!Expected Output: AS20115 full customer route IPV4 table should be exported
+
+{% if node.lag_id_2 != None %}
+show route advertising-protocol bgp {{ node.bgp.peer_ipv4_2}}
+!Expected Output: AS20115 full customer route IPV4 table should be exported
+{% else %}
+{% endif %}
+
+show route receive-protocol bgp {{ node.bgp.peer_ipv4_1 }}
+!Expected Output: AS{{ node.bgp.remote_as }} IPv4 routes should be received
+
+{% if node.lag_id_2 != None %}
+show route receive-protocol bgp {{ node.bgp.peer_ipv4_2 }}
+!Expected Output: AS{{ node.bgp.remote_as }} IPv4 routes should be received
+{% else %}
+{% endif %}
+
+show route advertising-protocol bgp {{ node.bgp.peer_ipv6_1 }}
+!Expected Output: AS20115 full customer route IPV6 table should be exported
+
+{% if node.lag_id_2 != None %}
+show route advertising-protocol bgp {{ node.bgp.peer_ipv6_2 }}
+!Expected Output: AS20115 full customer route IPV6 table should be exported 
+{% else %}
+{% endif %}
+
+show route receive-protocol bgp {{ node.bgp.peer_ipv6_1 }}
+!Expected Output: AS{{ node.bgp.remote_as }} IPv6 routes should be received
+!
+
+{% if node.lag_id_2 != None %}
+show route receive-protocol bgp {{ node.bgp.peer_ipv6_2 }}
+!Expected Output: AS{{ node.bgp.remote_as }} IPv6 routes should be received
+{% else %}
+{% endif %}
+!
+
+{% if node.lag_id_1 != None %}
+{% for intf,intf_attr in node.lag_id_1_links.items()|sort %}
+show interfaces {{ intf }}
+show interfaces {{ intf }} extensive | match err
+{% endfor %}
+!Expected Output: no errors to be seen!
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}   
+{% for intf,intf_attr in node.lag_id_2_links.items()|sort %}
+show interfaces {{ intf }}
+show interfaces {{ intf }} extensive | match err
+{% endfor %}
+!Expected Output: no errors to be seen!
+{% else %}
+{% endif %}

@@ -1,0 +1,386 @@
+{% set node = nodes[inventory_hostname] %}
+
+{% if node.lag_id_2 != None %}
+This Peering config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity BE{{node.lag_id_1}}-{{ node.lag_bw_1 }}G and BE{{node.lag_id_2}}-{{ node.lag_bw_2 }}G
+{% elif node.lag_id_1 != None %}
+This Peering config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity BE{{node.lag_id_1}}-{{ node.lag_bw_1 }}G
+{% else %}
+This Public Peering config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }}
+{% endif %}
+
+!CHANGE SPECIFIC PRE-CHECKS BELOW!
+
+Router Name: {{ inventory_hostname }}
+
+{% if node.lag_id_1 != None %}
+show int be{{ node.lag_id_1 }}
+!Expected Output : be{{ node.lag_id_1 }} should be free
+{% else %}
+ping {{node.bgp.peer_ipv4_1}} source {{node.lag_local_ipv4_1.split("/")[0]}} count 1000
+
+ping {{node.bgp.peer_ipv6_1}} source {{node.lag_local_ipv6_1.split("/")[0]}} count 1000
+
+sh route {{ node.bgp.peer_ipv4_1 }}
+!Ensure public peer-ip is learnt via pubic peering bundle
+
+sh route {{node.lag_local_ipv4_1.split("/")[0]}}
+!Ensure source-ip is connected via public same peering bundle
+{% endif %}
+
+{% if node.lag_id_2 != None %}
+show int be{{ node.lag_id_2 }}
+!Expected Output : be{{ node.lag_id_2 }} should be free
+{% else %}
+{% endif %}
+
+{% if node.lag_id_1 != None %}
+{% for intf,intf_attr in node.lag_id_1_links.items()|sort %}
+show interface {{ intf }}
+show controllers {{ intf }} phy | i dB
+!Expected Output: link light level should be good and no errors to be seen!
+{% endfor %}
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}   
+{% for intf,intf_attr in node.lag_id_2_links.items()|sort %}
+show interface {{ intf }}
+show controllers {{ intf }} phy | i dB
+!Expected Output: link light level should be good and no errors to be seen
+{% endfor %}
+{% else %}
+{% endif %}
+
+{% if node.lag_id_1 != None %}
+show route {{ node.lag_local_ipv4_1 }}
+!Expected Output: {{ node.lag_local_ipv4_1 }} IPv4 Space should be free and should not be present in the routing table
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}   
+show route {{ node.lag_local_ipv4_2 }}
+!Expected Output: {{ node.lag_local_ipv4_2 }} IPv4 Space should be free and should not be present in the routing table
+{% else %}
+{% endif %}
+
+{% if node.lag_id_1 != None %}
+show route ipv6 unicast {{ node.lag_local_ipv6_1 }}
+!Expected Output: {{ node.lag_local_ipv6_1 }} IPv6 Space should be free and should not be present in the routing table
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}   
+show route ipv6 unicast {{ node.lag_local_ipv6_2 }}
+!Expected Output: {{ node.lag_local_ipv6_2 }} IPv6 Space should be free and should not be present in the routing table
+{% else %}
+{% endif %}
+
+sh run formal | i AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
+sh run formal | i AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
+!Expected Output: Ensure the new group being created doesnt exist already. if group already exists, notify P&D, only neighbor need to be added to existing group
+!WARNING: If BGP group already existed, chances of overwrite possible!! USE CAUTION!!
+
+show bgp all all sum | i {{ node.bgp.remote_as }}
+!Expected Output: Check if BGP neighbors exist, if first turn up, then there should be no output
+
+show bgp ipv4 unicast neighbor {{ node.bgp.peer_ipv4_1 }} advertised-routes
+!Expected Output: No BGP neighbor should exist
+
+{% if node.lag_id_2 != None %}   
+show bgp ipv4 unicast neighbor {{ node.bgp.peer_ipv4_2}} advertised-routes
+!Expected Output: No BGP neighbor should exist
+{% else %}
+{% endif %}
+
+show bgp ipv4 unicast neighbor {{ node.bgp.peer_ipv4_1 }} routes
+!Expected Output: No BGP neighbor should exist
+
+{% if node.lag_id_2 != None %}   
+show bgp ipv4 unicast neighbor {{ node.bgp.peer_ipv4_2 }} routes
+!Expected Output: No BGP neighbor should exist
+{% else %}
+{% endif %}
+
+show bgp ipv6 unicast neighbor {{ node.bgp.peer_ipv6_1 }} advertised-routes
+!Expected Output: No BGP neighbor should exist
+
+{% if node.lag_id_2 != None %}   
+show bgp ipv6 unicast neighbor {{ node.bgp.peer_ipv6_2 }} advertised-routes
+!Expected Output: No BGP neighbor should exist
+{% else %}
+{% endif %}
+
+show bgp ipv6 unicast neighbor {{ node.bgp.peer_ipv6_1 }} routes
+!Expected Output: No BGP neighbor should exist
+!
+
+{% if node.lag_id_2 != None %}   
+show bgp ipv6 unicast neighbor {{ node.bgp.peer_ipv6_2 }} routes
+!Expected Output: No BGP neighbor should exist
+{% else %}
+{% endif %}
+!
+
+
+!CHANGE SPECIFIC CONFIGURATIONS BELOW!
+
+START
+
+Router Name: {{ inventory_hostname }}
+
+{% if node.lag_id_1 != None %}
+!LAG 1 Interface Configs!
+interface be{{ node.lag_id_1 }}
+interface be{{ node.lag_id_1 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_1 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grant_1 }}][IP={{ node.bgp.peer_ipv4_1 }}]"
+interface be{{ node.lag_id_1 }} service-policy input DDOS_POLICER_POLICY
+interface be{{ node.lag_id_1 }} output CRS-QoS
+interface be{{ node.lag_id_1 }} ipv4 address {{ node.lag_local_ipv4_1 }}
+interface be{{ node.lag_id_1 }} ipv6 address {{ node.lag_local_ipv6_1 }}
+interface be{{ node.lag_id_1 }} bundle minimum-active links 1
+interface be{{ node.lag_id_1 }} load-interval 30
+interface be{{ node.lag_id_1 }} flow ipv4 monitor NETFLOW_IPV4 sampler FNF_SAMPLER_MAP ingress
+interface be{{ node.lag_id_1 }} flow ipv6 monitor NETFLOW_IPV6 sampler FNF_SAMPLER_MAP ingress
+interface be{{ node.lag_id_1 }} dampening 1 750 2000 4
+interface be{{ node.lag_id_1 }} ipv4 access-group EDGE_IN_IPV4_FILTER ingress
+interface be{{ node.lag_id_1 }} ipv6 access-group EDGE_IN_IPV6_FILTER ingress
+
+!Interface Config LAG 1!
+{% for intf,intf_attr in node.lag_id_1_links.items()|sort %}
+interface {{ intf }}
+interface {{ intf }} description [TYPE={{ node.type }}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID={{ intf_attr.pcid }}]
+interface {{ intf }} bundle id {{ node.lag_id_1 }} mode active
+interface {{ intf }} lacp period short
+interface {{ intf }} carrier-delay up 500 down 0
+interface {{ intf }} load-interval 30
+interface {{ intf }} dampening 1 750 2000 4
+{% endfor %}
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}         
+!LAG 2 Interface Configs!
+interface be{{ node.lag_id_2 }}
+interface be{{ node.lag_id_2 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_2 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grant_2 }}][IP={{ node.bgp.peer_ipv4_2 }}]"
+interface be{{ node.lag_id_2 }} service-policy input DDOS_POLICER_POLICY
+interface be{{ node.lag_id_2 }} output CRS-QoS
+interface be{{ node.lag_id_2 }} ipv4 address {{ node.lag_local_ipv4_2 }}
+interface be{{ node.lag_id_2 }} ipv6 address {{ node.lag_local_ipv6_2 }}    
+interface be{{ node.lag_id_2 }} bundle minimum-active links 1
+interface be{{ node.lag_id_2 }} load-interval 30
+interface be{{ node.lag_id_2 }} flow ipv4 monitor NETFLOW_IPV4 sampler FNF_SAMPLER_MAP ingress
+interface be{{ node.lag_id_2 }} flow ipv6 monitor NETFLOW_IPV6 sampler FNF_SAMPLER_MAP ingress
+interface be{{ node.lag_id_2 }} flow mpls monitor NETFLOW_MPLS sampler FNF_SAMPLER_MAP ingress
+interface be{{ node.lag_id_2 }} dampening 1 750 2000 4
+interface be{{ node.lag_id_2 }} ipv4 access-group EDGE_IN_IPV4_FILTER ingress
+interface be{{ node.lag_id_2 }} ipv6 access-group EDGE_IN_IPV6_FILTER ingress
+
+!Interface Config LAG 2!
+{% for intf,intf_attr in node.lag_id_2_links.items() %}
+interface {{ intf }}
+interface {{ intf }} description [TYPE={{ node.type }}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID:{{ intf_attr.pcid }}] 
+interface {{ intf }} bundle id {{ node.lag_id_2 }} mode active
+interface {{ intf }} lacp period short
+interface {{ intf }} carrier-delay up 500 down 0
+interface {{ intf }} dampening 1 750 2000 4
+{% endfor %}
+{% else %}
+{% endif %}
+
+
+!BGP Configs!
+
+!WARNING: USE CAUTION!!!! CHECK IF THE POLICY EXISTS IN THE ROUTER ALREADY!!!!
+
+route-policy AS{{ node.bgp.remote_as }}-IN
+  apply PEER-IN
+  set community PEER_ON_CORE_RETAIN_NH additive
+  set local-preference 100
+end-policy
+!WARNING: USE CAUTION!!!! CHECK IF PEER_ON_CORE_RETAIN_NH COMMUNITY NEED TO BE ADDED!!!! PD ENGINEER TO CHECK THIS !!!!
+
+
+!WARNING: USE CAUTION!!!! CHECK IF THE POLICY EXISTS IN THE ROUTER ALREADY!!!!
+route-policy AS{{ node.bgp.remote_as }}-OUT
+  apply PEER-OUT
+end-policy
+!WARNING: CHECK IF THE PEER REQUIRES IGP-COST TO BE SENT AS MED!!!!! PD ENGINEER TO CHECK THIS!!!!
+
+
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP remote-as {{ node.bgp.remote_as }}
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP description {{ node.name|upper }}_IPv4_SFI
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast send-community-ebgp
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast route-policy AS{{ node.bgp.remote_as }}-IN in
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast maximum-prefix {{ node.bgp.ipv4_prefix_limit }} {{ node.bgp.ipv4_prefix_limit_teardown }} restart 8
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast route-policy AS{{ node.bgp.remote_as }}-OUT out 
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast remove-private-AS
+{% if node.bgp.ipv4_md5 != None %}
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP password clear {{ node.bgp.ipv4_md5 }}
+{% else %}
+{% endif %}
+{% if node.lag_id_2 != None %} 
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast multipath
+{% else %}
+{% endif %}
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast soft-reconfiguration inbound always
+!
+
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP remote-as {{ node.bgp.remote_as }}
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP description {{ node.name|upper }}_IPv6_SFI
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast send-community-ebgp
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast route-policy AS{{ node.bgp.remote_as }}-IN-V6 in
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast maximum-prefix {{ node.bgp.ipv6_prefix_limit }} {{ node.bgp.ipv6_prefix_limit_teardown }}
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast route-policy AS{{ node.bgp.remote_as }}-OUT-V6 out
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast remove-private-AS
+{% if node.bgp.ipv6_md5 != None %}
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP password clear {{ node.bgp.ipv6_md5 }}
+{% else %}
+{% endif %}
+{% if node.lag_id_2 != None %}
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv4 unicast multipath
+{% else %}
+{% endif %}
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast soft-reconfiguration inbound always
+
+!Adding BGP Neighbor!
+
+router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_1 }}
+router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
+{% if node.lag_id_2 != None %}
+router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_2 }}
+router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_2 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
+{% else %}
+{% endif %}
+
+!
+router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_1 }}
+router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
+{% if node.lag_id_2 != None %}
+router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_2 }}
+router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_2 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
+{% else %}
+{% endif %}
+!
+
+END
+
+!CHANGE SPECIFIC POST-CHECKS!
+
+Router Name: {{ inventory_hostname }}
+
+{% if node.lag_id_1 != None %}
+show int be{{ node.lag_id_1 }}
+show int be{{ node.lag_id_1 }} | in "rate|drop|err"
+show lacp bundle-ether{{ node.lag_id_1 }}
+!Expected Output : be{{ node.lag_id_1 }} should be UP and error free
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}
+show int be{{ node.lag_id_2 }}
+show int be{{ node.lag_id_2 }} | in "rate|drop|err"
+show lacp bundle-ether{{ node.lag_id_2 }}
+!Expected Output : be{{ node.lag_id_2 }} should be UP and error free
+{% else %}
+{% endif %}
+
+{% if node.lag_id_1 != None %}
+show route {{ node.lag_local_ipv4_1 }}
+!Expected Output: {{ node.lag_local_ipv4_1 }} IPv4 Space should be present as connected route in the routing table
+ping {{node.bgp.peer_ipv4_1}} source {{node.lag_local_ipv4_1.split("/")[0]}} count 1000
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}   
+show route {{ node.lag_local_ipv4_2 }}
+!Expected Output: {{ node.lag_local_ipv4_2 }} IPv4 Space should be present as connected route in the routing table
+ping {{node.bgp.peer_ipv4_2}} source {{node.lag_local_ipv4_2.split("/")[0]}} count 1000
+{% else %}
+{% endif %}
+
+{% if node.lag_id_1 != None %}
+show route ipv6 unicast {{ node.lag_local_ipv6_1 }}
+!Expected Output: {{ node.lag_local_ipv6_1 }} IPv6 Space should be present as connected route in the routing table
+ping {{node.bgp.peer_ipv6_1}} source {{node.lag_local_ipv6_1.split("/")[0]}} count 1000
+
+{% else %}
+{% endif %}
+
+
+{% if node.lag_id_2 != None %}   
+show route ipv6 unicast {{ node.lag_local_ipv6_2 }}
+!Expected Output: {{ node.lag_local_ipv6_2 }} IPv6 Space should be present as connected route in the routing table
+ping {{node.bgp.peer_ipv6_2}} source {{node.lag_local_ipv6_2.split("/")[0]}} count 1000
+
+{% else %}
+{% endif %}
+
+show bgp all all sum | i {{ node.bgp.remote_as }}
+!Expected Output: Newly configured {{ node.bgp.peer_ipv4_1 }} & {{ node.bgp.peer_ipv6_1 }} BGP neighbors state to be UP
+{% if node.lag_id_2 != None %}   
+!Expected Output: Newly configured {{ node.bgp.peer_ipv4_2 }} & {{ node.bgp.peer_ipv6_2 }} BGP neighbors state to be UP
+{% else %}
+{% endif %}
+
+show bgp neighbor {{ node.bgp.peer_ipv4_1 }} configuration
+show bgp neighbor {{ node.bgp.peer_ipv6_1 }} configuration      
+!Expected Output: Check newly configured {{ node.bgp.peer_ipv4_2 }} & {{ node.bgp.peer_ipv6_2 }} parameters
+
+show bgp ipv4 unicast neighbor {{ node.bgp.peer_ipv4_1 }} advertised-routes
+!Expected Output: AS20115 full customer route IPV4 table should be exported
+
+{% if node.lag_id_2 != None %}   
+show bgp ipv4 unicast neighbor {{ node.bgp.peer_ipv4_2}} advertised-routes
+!Expected Output: AS20115 full customer route IPV4 table should be exported
+{% else %}
+{% endif %}
+
+show bgp ipv4 unicast neighbor {{ node.bgp.peer_ipv4_1 }} routes
+!Expected Output: AS{{ node.bgp.remote_as }} IPv4 routes should be received
+
+{% if node.lag_id_2 != None %}   
+show bgp ipv4 unicast neighbor {{ node.bgp.peer_ipv4_2 }} routes
+!Expected Output: AS{{ node.bgp.remote_as }} IPv4 routes should be received
+{% else %}
+{% endif %}
+
+show bgp ipv6 unicast neighbor {{ node.bgp.peer_ipv6_1 }} advertised-routes
+!Expected Output: AS20115 full customer route IPV6 table should be exported
+
+{% if node.lag_id_2 != None %}   
+show bgp ipv6 unicast neighbor {{ node.bgp.peer_ipv6_2 }} advertised-routes
+!Expected Output: AS20115 full customer route IPV6 table should be exported
+{% else %}
+{% endif %}
+
+show bgp ipv6 unicast neighbor {{ node.bgp.peer_ipv6_1 }} routes
+!Expected Output: AS{{ node.bgp.remote_as }} IPV6 routes should be received.
+!
+
+{% if node.lag_id_2 != None %}   
+show bgp ipv6 unicast neighbor {{ node.bgp.peer_ipv6_2 }} routes
+!Expected Output: AS{{ node.bgp.remote_as }} IPV6 routes should be received.
+{% else %}
+{% endif %}
+!
+
+{% if node.lag_id_1 != None %}
+{% for intf,intf_attr in node.lag_id_1_links.items()|sort %}
+show interface {{ intf }} | in "rate|drop|err"
+{% endfor %}
+
+!Expected Output : Make sure there are no errors or drops
+{% else %}
+{% endif %}
+
+{% if node.lag_id_2 != None %}
+{% for intf,intf_attr in node.lag_id_2_links.items()|sort %}
+show interface {{ intf }} | in "rate|drop|err"
+{% endfor %}
+
+!Expected Output : Make sure there are no errors or drops!
+{% else %}
+{% endif %}
