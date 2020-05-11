@@ -11,4 +11,4 @@
       file: path=peering_config  state=directory
       run_once: true
     - name: Generate Configuration
-      template: src={{dev_os}}/peering_template.j2 dest=peering_config/{{inventory_hostname}}-{{ nodes[inventory_hostname].jira }}-{{ nodes[inventory_hostname].name|upper }}-{{ nodes[inventory_hostname].lag_id_1_add }}G-{{ nodes[inventory_hostname].lag_id_2_add }}G-config.txt
+      template: src={{dev_os}}/peering_template.j2 dest=peering_config/{{inventory_hostname}}-{{ nodes[inventory_hostname].jira }}-{{ nodes[inventory_hostname].name|upper }}-{{ nodes[inventory_hostname].lag_id_1_add }}G-config.txt

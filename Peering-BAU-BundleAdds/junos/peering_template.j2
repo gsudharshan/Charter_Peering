@@ -1,6 +1,10 @@
 {% set node = nodes[inventory_hostname] %}
 
+{% if node.lag_id_2 != None %}
 This Peering Bundle config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity AE{{node.lag_id_1}}-{{ node.lag_bw_1 }}G and AE{{node.lag_id_2}}-{{ node.lag_bw_2 }}G
+{% else %}
+This Peering Bundle config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity AE{{node.lag_id_1}}-{{ node.lag_bw_1 }}G
+{% endif %}
 
 !CHANGE SPECIFIC PRE-CHECKS BELOW!
 
@@ -48,9 +52,12 @@ START
 Router Name: {{ inventory_hostname }}
 
 
+{% if node.lag_id_1 != None %}
+
 !Interface Config LAG1!
 
-{% if node.lag_id_1 != None %}
+set interfaces ae{{ node.lag_id_1 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_1 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][IP={{ node.bgp.peer_ipv4_1 }}]"
+
 {% for intf, intf_attr in node.lag_id_1_links.items()|sort %}
 set interfaces {{ intf }} description "[TYPE={{node.type}}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID={{ intf_attr.pcid }}]"
 set interfaces {{ intf }} hold-time up 500
@@ -66,7 +73,13 @@ set interfaces {{ intf }} gigether-options 802.3ad ae{{ node.lag_id_1 }}
 {% else %}
 {% endif %}
 
+
 {% if node.lag_id_2 != None %}    
+
+!Interface Config LAG2!
+
+set interfaces ae{{ node.lag_id_2 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_2 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][IP={{ node.bgp.peer_ipv4_2 }}]"
+
 {% for intf, intf_attr in node.lag_id_2_links.items()|sort %}
 set interfaces {{ intf }} description "[TYPE={{node.type}}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID={{ intf_attr.pcid }}]"
 set interfaces {{ intf }} hold-time up 500
@@ -81,7 +94,6 @@ set interfaces {{ intf }} gigether-options 802.3ad ae{{ node.lag_id_2 }}
 {% endfor %}
 {% else %}
 {% endif %}
-
 
 END
 

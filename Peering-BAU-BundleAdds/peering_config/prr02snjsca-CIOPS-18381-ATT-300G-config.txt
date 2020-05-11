@@ -1,0 +1,132 @@
+
+This Peering Bundle config is for CIOPS-18381 in prr02snjsca for ATT with capacity BE1515-400G and BE1545-500G
+
+!CHANGE SPECIFIC PRE-CHECKS BELOW!
+
+Router Name: prr02snjsca
+
+show int be1515
+
+!Expected Output : Check be1515 existing links
+
+show int be1545
+
+!Expected Output : Check be1545 existing links
+
+show interface Hu3/0/0/0
+show controllers Hu3/0/0/0 phy | i dB
+show interface Hu2/0/0/0
+show controllers Hu2/0/0/0 phy | i dB
+show interface Hu1/0/0/0
+show controllers Hu1/0/0/0 phy | i dB
+
+!Expected Output: link light level should be good
+
+   
+show interface Hu5/0/0/0
+show controllers Hu5/0/0/0 phy | i dB
+show interface Hu4/0/0/0
+show controllers Hu4/0/0/0 phy | i dB
+show interface Hu6/0/0/0
+show controllers Hu6/0/0/0 phy | i dB
+!Expected Output: link light level should be good
+
+
+
+!CHANGE SPECIFIC CONFIGURATIONS BELOW!
+
+START
+
+Router Name: prr02snjsca
+
+
+!Interface Config LAG 1!  
+
+interface be1515 description "[TYPE=PEER][BW=400G][NAME=ATT][AS=7018][GRNT=chn00499491][IP=209.85.168.184]"
+
+interface Hu3/0/0/0
+interface Hu3/0/0/0 description [TYPE=PEER][BW=100G][NAME=ATT][AS=7018][LAG=1515][GRNT=chn00499492][JIRA=CIOPS-18381][CCID=21373149-Z][PCID:179119]
+interface Hu3/0/0/0 bundle id 1515 mode active
+interface Hu3/0/0/0 lacp period short
+interface Hu3/0/0/0 carrier-delay up 500 down 0
+interface Hu3/0/0/0 dampening 1 750 2000 4
+
+interface Hu2/0/0/0
+interface Hu2/0/0/0 description [TYPE=PEER][BW=100G][NAME=ATT][AS=7018][LAG=1515][GRNT=chn00499492][JIRA=CIOPS-18381][CCID=21373149-Z][PCID:179119]
+interface Hu2/0/0/0 bundle id 1515 mode active
+interface Hu2/0/0/0 lacp period short
+interface Hu2/0/0/0 carrier-delay up 500 down 0
+interface Hu2/0/0/0 dampening 1 750 2000 4
+
+interface Hu1/0/0/0
+interface Hu1/0/0/0 description [TYPE=PEER][BW=100G][NAME=ATT][AS=7018][LAG=1515][GRNT=chn00499492][JIRA=CIOPS-18381][CCID=21373149-Z][PCID:179119]
+interface Hu1/0/0/0 bundle id 1515 mode active
+interface Hu1/0/0/0 lacp period short
+interface Hu1/0/0/0 carrier-delay up 500 down 0
+interface Hu1/0/0/0 dampening 1 750 2000 4
+
+
+
+!Interface Config LAG 2!
+
+interface be1545 description "[TYPE=PEER][BW=500G][NAME=ATT][AS=7018][GRNT=chn00499493][IP=96.34.3.2]"
+
+interface Hu5/0/0/0
+interface Hu5/0/0/0 description [TYPE=PEER][BW=100G][NAME=ATT][AS=7018][LAG=1545][GRNT=chn00499492][JIRA=CIOPS-18381][CCID=21373149-Z][PCID:179119] 
+interface Hu5/0/0/0 bundle id 1545 mode active
+interface Hu5/0/0/0 lacp period short
+interface Hu5/0/0/0 carrier-delay up 500 down 0
+interface Hu5/0/0/0 dampening 1 750 2000 4
+
+interface Hu4/0/0/0
+interface Hu4/0/0/0 description [TYPE=PEER][BW=100G][NAME=ATT][AS=7018][LAG=1545][GRNT=chn00499492][JIRA=CIOPS-18381][CCID=21373150-Z][PCID:179545] 
+interface Hu4/0/0/0 bundle id 1545 mode active
+interface Hu4/0/0/0 lacp period short
+interface Hu4/0/0/0 carrier-delay up 500 down 0
+interface Hu4/0/0/0 dampening 1 750 2000 4
+
+interface Hu6/0/0/0
+interface Hu6/0/0/0 description [TYPE=PEER][BW=100G][NAME=ATT][AS=7018][LAG=1545][GRNT=chn00499492][JIRA=CIOPS-18381][CCID=21373149-Z][PCID:179119] 
+interface Hu6/0/0/0 bundle id 1545 mode active
+interface Hu6/0/0/0 lacp period short
+interface Hu6/0/0/0 carrier-delay up 500 down 0
+interface Hu6/0/0/0 dampening 1 750 2000 4
+
+
+END
+
+!CHANGE SPECIFIC POST-CHECKS!
+
+Router Name: prr02snjsca
+
+show int be1515
+
+!Expected Output : Check be1515 has the new links active in the bundle
+
+show int be1515 | in "rate|drop|err"
+
+!Expected Output : Check be1515 to make to there are no errors or drops
+
+
+
+show int be1545
+
+!Expected Output : Check be1545 has the new links active in the bundle
+
+show int be1545 | in "rate|drop|err"
+
+!Expected Output : Check be1545 to make to there are no errors or drops 
+
+
+
+show interface Hu3/0/0/0 | in "rate|drop|err"
+show interface Hu2/0/0/0 | in "rate|drop|err"
+show interface Hu1/0/0/0 | in "rate|drop|err"
+
+!Expected Output : Make sure there are no errors or drops
+
+show interface Hu5/0/0/0 | in "rate|drop|err"
+show interface Hu4/0/0/0 | in "rate|drop|err"
+show interface Hu6/0/0/0 | in "rate|drop|err"
+
+!Expected Output : Make sure there are no errors or drops!

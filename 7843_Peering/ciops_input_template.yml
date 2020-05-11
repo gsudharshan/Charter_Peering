@@ -1,6 +1,15 @@
-#
-# CIOPS team will supply the variables needed for each router, peer and CBOBBIPPD ticket
+################ INSTRUCTIONS FOR CIOPS ####################
+
+# If 2nd LAG is not need, just leave lag_id_2: <empty> and no action will be performed
+# If lag_id_1 and lag_id_2 is left <empty>, then the output will switch to public peering template
+# lag_bw_1 and lag_bw_2 is the total LAG capacity after the upgrades
+# lag_id_1_lacp and lag_id_2_lacp is included to setup lacp bw configuration for the Juniper routers.                                                  
+# group_md5: is included to include md5 password at group for Juniper routers
+
+
+# CIOPS team will supply the variables needed for each router, peer or JIRA ticket
 # CIOPS team can provide one yaml file for multiple routers or for a specific peer turn up in multiple routers
+# CIOPS team will not modify any fields shown below, leave fields empty if you dont have info to fill in
 # Each node shown below will generate configurations based on the router type. Backbone PD needs to ensure to use the correct JINJA2 templates to generate the configurations
 
 ---

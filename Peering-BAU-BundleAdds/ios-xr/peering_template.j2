@@ -1,6 +1,10 @@
 {% set node = nodes[inventory_hostname] %}
 
+{% if node.lag_id_2 != None %}
 This Peering Bundle config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity BE{{node.lag_id_1}}-{{ node.lag_bw_1 }}G and BE{{node.lag_id_2}}-{{ node.lag_bw_2 }}G
+{% else %} 
+This Peering Bundle config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity BE{{node.lag_id_1}}-{{ node.lag_bw_1 }}G                                             
+{% endif %}
 
 !CHANGE SPECIFIC PRE-CHECKS BELOW!
 
@@ -47,8 +51,12 @@ START
 
 Router Name: {{ inventory_hostname }}
 
-!Interface Config LAG 1!
 {% if node.lag_id_1 != None %}
+
+!Interface Config LAG 1!  
+
+interface be{{ node.lag_id_1 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_1 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grant_1 }}][IP={{ node.bgp.peer_ipv4_1 }}]"
+
 {% for intf,intf_attr in node.lag_id_1_links.items() %}
 interface {{ intf }}
 interface {{ intf }} description [TYPE={{ node.type }}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID:{{ intf_attr.pcid }}]
@@ -56,13 +64,17 @@ interface {{ intf }} bundle id {{ node.lag_id_1 }} mode active
 interface {{ intf }} lacp period short
 interface {{ intf }} carrier-delay up 500 down 0
 interface {{ intf }} dampening 1 750 2000 4
+
 {% endfor %}
 {% else %}
 {% endif %}
-interface be{{ node.lag_id_1 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_1 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grant_1 }}][IP={{ node.bgp.peer_ipv4_1 }}]"
+
+{% if node.lag_id_2 != None %}
 
 !Interface Config LAG 2!
-{% if node.lag_id_2 != None %}
+
+interface be{{ node.lag_id_2 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_2 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grant_2 }}][IP={{ node.bgp.peer_ipv4_2 }}]"
+
 {% for intf,intf_attr in node.lag_id_2_links.items() %}
 interface {{ intf }}
 interface {{ intf }} description [TYPE={{ node.type }}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID:{{ intf_attr.pcid }}] 
@@ -70,11 +82,10 @@ interface {{ intf }} bundle id {{ node.lag_id_2 }} mode active
 interface {{ intf }} lacp period short
 interface {{ intf }} carrier-delay up 500 down 0
 interface {{ intf }} dampening 1 750 2000 4
+
 {% endfor %}
 {% else %}
 {% endif %}
-interface be{{ node.lag_id_2 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_2 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grant_2 }}][IP={{ node.bgp.peer_ipv4_2 }}]"
-
 
 END
 

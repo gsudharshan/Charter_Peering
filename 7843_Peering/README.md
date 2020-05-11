@@ -1,8 +1,8 @@
 
-# Template for generating configs for both IOS-XR and Junos by updating the generate_peering_config.yml
+# Template for generating Peering configs for AS20115 for both IOS-XR and Junos by updating the generate_peering_config.yml
 
-usage $ansible-playbook -i router_list.yml generate_peering_config.yml
+!!!!!!! usage $ansible-playbook -i router_list.yml generate_peering_config.yml !!!!!!!!!!!!!!!!
 
-For now edit the router_list.yml will contain the hosts you are generating the config file for. That file will be created in the peer_config folder.
+router_list.yml contains all the AS20115 router names you are generating the config file for. The file you are creating will be placed in the peering_config/ folder.
 
-Junos routers go under the Junos section on inventory.yml\IOS-XR routers go under the IOS-XR section. This will determine the correct Jinja Template to be used.
+Junos routers go under the Junos section on router_list.yml\IOS-XR routers go under the IOS-XR section. This will determine the correct Jinja Template to be used.

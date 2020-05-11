@@ -1,9 +1,15 @@
-#
-# CIOPS team will supply the variables needed for each router, peer or JIRA ticket
-# CIOPS team can provide one yaml file for multiple routers or for a specific peer turn up in multiple routers, only care should be in grouping routers based on AS20115 or AS7843 (templates are AS based)
-# CIOPS team - if lag_id_1 and lag_id_2 is left empty, the template will adjust configurations for public peering, including pre and post checks
-# CIOPS team - please dont add or delete lines, just leave the fields empty if you dont have info to fill
-# Each node shown below will generate configurations based on the router type/AS to which it belongs. Backbone PD needs to ensure to use the correct JINJA2 templates to generate the configurations
+################ INSTRUCTIONS FOR CIOPS ####################
+
+# If 2nd LAG is not need, just leave lag_id_2: <empty> and no action will be performed
+# If lag_id_1 and lag_id_2 is left <empty>, then the output will switch to public peering template
+# lag_bw_1 and lag_bw_2 is the total LAG capacity after the upgrades
+# lag_id_1_lacp and lag_id_2_lacp is included to setup lacp bw configuration for the Juniper routers.
+# group_md5: is included to include md5 password at group for Juniper routers
+
+# CIOPS team will supply the variables needed for each router, peer or JIRA ticket      
+# CIOPS team can provide one yaml file for multiple routers or for a specific peer turn up in multiple routers
+# CIOPS team will not modify any fields shown below, leave fields empty if you dont have info to fill in
+# Each node shown below will generate configurations based on the router type. Backbone PD needs to ensure to use the correct JINJA2 templates to generate the configurations
 
 ---
 
@@ -47,3 +53,39 @@ nodes:
        local_as: 20115
        remote_as: 49544
 
+  prr02snjsca:
+    name: google
+    type: PEER
+    jira: CIOPS-18380
+    lag_id_1: 1018
+    lag_id_1_lacp: 100
+    lag_bw_1: 100
+    lag_grant_1: chn00499491
+    lag_local_ipv4_1: "209.85.168.185/31"
+    lag_local_ipv6_1: "2001:4860:1:1::16cf/127"
+    lag_id_1_links:
+                 Hu0/0/0/5: { int_bw: 100, int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
+
+    lag_id_2:
+    lag_id_2_lacp: 100
+    lag_bw_2: 100
+    lag_grant_2: chn00499493
+    lag_local_ipv4_2: "96.34.3.1/31"
+    lag_local_ipv6_2: "2001:2234:0:2::2/127"
+    lag_id_2_links:
+                 et-1/2/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373150-Z, pcid: 179545 }
+
+    bgp:
+       group_md5:
+       ipv4_md5: jutran7dEbUwr6c9
+       ipv6_md5: jutran7dEbUwr6c9
+       ipv4_prefix_limit: 15000
+       ipv4_prefix_limit_teardown: 90
+       ipv6_prefix_limit: 10000
+       ipv6_prefix_limit_teardown: 90
+       peer_ipv4_1: 209.85.168.184
+       peer_ipv6_1: "2001:4860:2:1::16ce"
+       peer_ipv4_2:
+       peer_ipv6_2:
+       local_as: 20115
+       remote_as: 15169
