@@ -15,44 +15,6 @@
 
 nodes:
 
-  prr01stlsmo:
-    name: i3D
-    type: PEER
-    jira: CIOPS-30727
-    lag_id_1: 1076 
-    lag_id_1_lacp: 10
-    lag_bw_1: 20
-    lag_grant_1: chn00499482
-    lag_local_ipv4_1: "138.128.140.9/31"
-    lag_local_ipv6_1: "2a04:c606:1::9/126"
-    lag_id_1_links:
-                 et-0/0/0:1: { int_bw: 100, int_grnt: chn00499470, ccid: 21374446, pcid: }
-                 et-0/0/0:2: { int_bw: 100, int_grnt: chn00499471, ccid: 21374447, pcid: }
-
-    lag_id_2: 
-    lag_id_2_lacp: 100 
-    lag_bw_2: 100
-    lag_grant_2: chn00499493
-    lag_local_ipv4_2: "96.34.3.1/31"           
-    lag_local_ipv6_2: "2001:2234:0:2::2/127" 
-    lag_id_2_links:
-                 et-1/2/0: { int_bw: 100, int_grnt: chn00499492, ccid: 21373150-Z, pcid: 179545 }
-
-    bgp:
-       group_md5: 
-       ipv4_md5: jutran7dEbUwr6c9 
-       ipv6_md5: jutran7dEbUwr6c9
-       ipv4_prefix_limit: 10000
-       ipv4_prefix_limit_teardown: 90
-       ipv6_prefix_limit: 1000
-       ipv6_prefix_limit_teardown: 90
-       peer_ipv4_1: 138.128.140.8
-       peer_ipv6_1: "2a04:c606:1::8"
-       peer_ipv4_2: 
-       peer_ipv6_2: 
-       local_as: 20115
-       remote_as: 49544
-
   prr02snjsca:
     name: google
     type: PEER

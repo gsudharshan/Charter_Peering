@@ -1,0 +1,171 @@
+
+This Peering config is for CIOPS-18380 in prr02snjsca for GOOGLE with capacity BE1018-100G
+
+!CHANGE SPECIFIC PRE-CHECKS BELOW!
+
+Router Name: prr02snjsca
+
+show int be1018
+!Expected Output : be1018 should be free
+
+
+show interface Hu0/0/0/5
+show controllers Hu0/0/0/5 phy | i dB
+!Expected Output: link light level should be good and no errors to be seen!
+
+
+show route 209.85.168.185/31
+!Expected Output: 209.85.168.185/31 IPv4 Space should be free and should not be present in the routing table
+
+
+show route ipv6 unicast 2001:4860:1:1::16cf/127
+!Expected Output: 2001:4860:1:1::16cf/127 IPv6 Space should be free and should not be present in the routing table
+
+
+sh run formal | i AS15169_GOOGLE_IPV4_GROUP
+sh run formal | i AS15169_GOOGLE_IPV6_GROUP
+!Expected Output: Ensure the new group being created doesnt exist already. if group already exists, notify P&D, only neighbor need to be added to existing group
+!WARNING: If BGP group already existed, chances of overwrite possible!! USE CAUTION!!
+
+show bgp all all sum | i 15169
+!Expected Output: Check if BGP neighbors exist, if first turn up, then there should be no output
+
+show bgp ipv4 unicast neighbor 209.85.168.184 advertised-routes
+!Expected Output: No BGP neighbor should exist
+
+
+show bgp ipv4 unicast neighbor 209.85.168.184 routes
+!Expected Output: No BGP neighbor should exist
+
+
+show bgp ipv6 unicast neighbor 2001:4860:2:1::16ce advertised-routes
+!Expected Output: No BGP neighbor should exist
+
+
+show bgp ipv6 unicast neighbor 2001:4860:2:1::16ce routes
+!Expected Output: No BGP neighbor should exist
+!
+
+!
+
+
+!CHANGE SPECIFIC CONFIGURATIONS BELOW!
+
+START
+
+Router Name: prr02snjsca
+
+!LAG 1 Interface Configs!
+interface be1018
+interface be1018 description "[TYPE=PEER][BW=100G][NAME=GOOGLE][AS=15169][GRNT=chn00499491][IP=209.85.168.184]"
+interface be1018 service-policy input DDOS_POLICER_POLICY
+interface be1018 ipv4 address 209.85.168.185/31
+interface be1018 ipv6 address 2001:4860:1:1::16cf/127
+interface be1018 load-interval 30
+interface be1018 flow ipv4 monitor NETFLOW_IPV4 sampler FNF_SAMPLER_MAP ingress
+interface be1018 flow ipv6 monitor NETFLOW_IPV6 sampler FNF_SAMPLER_MAP ingress
+interface be1018 flow mpls monitor NETFLOW_MPLS sampler FNF_SAMPLER_MAP ingress
+interface be1018 dampening 1 750 2000 4
+interface be1018 ipv4 access-group EDGE_IN_IPV4_FILTER ingress
+interface be1018 ipv6 access-group EDGE_IN_IPV6_FILTER ingress
+
+!Interface Config LAG 1!
+interface Hu0/0/0/5
+interface Hu0/0/0/5 description [TYPE=PEER][BW=100G][NAME=GOOGLE][AS=15169][LAG=1018][GRNT=chn00499492][JIRA=CIOPS-18380][CCID=21373149-Z][PCID=179119]
+interface Hu0/0/0/5 bundle id 1018 mode active
+interface Hu0/0/0/5 lacp period short
+interface Hu0/0/0/5 carrier-delay up 500 down 0
+interface Hu0/0/0/5 dampening 1 750 2000 4
+
+
+
+
+!BGP Configs!
+
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV4_GROUP
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV4_GROUP remote-as 15169
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV4_GROUP description GOOGLE_IPv4_SFI
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV4_GROUP address-family ipv4 unicast
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV4_GROUP password clear jutran7dEbUwr6c9
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV4_GROUP address-family ipv4 unicast send-community-ebgp
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV4_GROUP address-family ipv4 unicast route-policy INBOUND-PEERS in
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV4_GROUP address-family ipv4 unicast maximum-prefix 15000 90
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV4_GROUP address-family ipv4 unicast route-policy OUTBOUND_PEERS out
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV4_GROUP address-family ipv4 unicast remove-private-AS
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV4_GROUP address-family ipv4 unicast soft-reconfiguration inbound
+
+
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV6_GROUP
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV6_GROUP remote-as 15169
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV6_GROUP description GOOGLE_IPv6_SFI
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV6_GROUP address-family ipv6 unicast
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV6_GROUP password clear jutran7dEbUwr6c9
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV6_GROUP address-family ipv6 unicast send-community-ebgp
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV6_GROUP address-family ipv6 unicast route-policy IPV6-INBOUND-PEERS in
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV6_GROUP address-family ipv6 unicast maximum-prefix 10000 90
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV6_GROUP address-family ipv6 unicast route-policy IPV6-OUTBOUND-PEERS out
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV6_GROUP address-family ipv6 unicast remove-private-AS
+router bgp 20115 neighbor-group AS15169_GOOGLE_IPV6_GROUP address-family ipv6 unicast soft-reconfiguration inbound
+
+!Adding BGP Neighbor!
+
+router bgp 20115 neighbor 209.85.168.184
+router bgp 20115 neighbor 209.85.168.184 use neighbor-group AS15169_GOOGLE_IPV4_GROUP
+!
+router bgp 20115 neighbor 2001:4860:2:1::16ce
+router bgp 20115 neighbor 2001:4860:2:1::16ce use neighbor-group AS15169_GOOGLE_IPV6_GROUP
+!
+
+END
+
+!CHANGE SPECIFIC POST-CHECKS!
+
+Router Name: prr02snjsca
+
+show int be1018
+show int be1018 | in "rate|drop|err"
+show lacp bundle-ether1018
+!Expected Output : be1018 should be UP and error free
+
+
+show route 209.85.168.185/31
+!Expected Output: 209.85.168.185/31 IPv4 Space should be present as connected route in the routing table
+ping 209.85.168.184 source 209.85.168.185 count 1000
+
+
+show route ipv6 unicast 2001:4860:1:1::16cf/127
+!Expected Output: 2001:4860:1:1::16cf/127 IPv6 Space should be present as connected route in the routing table
+ping 2001:4860:2:1::16ce source 2001:4860:1:1::16cf count 1000
+
+
+
+
+show bgp all all sum | i 15169
+!Expected Output: Newly configured 209.85.168.184 & 2001:4860:2:1::16ce BGP neighbors state to be UP
+
+show bgp neighbor 209.85.168.184 configuration
+show bgp neighbor 2001:4860:2:1::16ce configuration      
+!Expected Output: Check newly configured  &  parameters
+
+show bgp ipv4 unicast neighbor 209.85.168.184 advertised-routes
+!Expected Output: AS20115 full customer route IPV4 table should be exported
+
+
+show bgp ipv4 unicast neighbor 209.85.168.184 routes
+!Expected Output: AS15169 IPv4 routes should be received
+
+
+show bgp ipv6 unicast neighbor 2001:4860:2:1::16ce advertised-routes
+!Expected Output: AS20115 full customer route IPV6 table should be exported
+
+
+show bgp ipv6 unicast neighbor 2001:4860:2:1::16ce routes
+!Expected Output: AS15169 IPV6 routes should be received.
+!
+
+!
+
+show interface Hu0/0/0/5 | in "rate|drop|err"
+
+!Expected Output : Make sure there are no errors or drops
+

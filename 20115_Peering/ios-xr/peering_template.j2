@@ -146,7 +146,7 @@ interface be{{ node.lag_id_1 }} ipv6 access-group EDGE_IN_IPV6_FILTER ingress
 !Interface Config LAG 1!
 {% for intf,intf_attr in node.lag_id_1_links.items() %}
 interface {{ intf }}
-interface {{ intf }} description [TYPE={{ node.type }}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID:{{ intf_attr.pcid }}]
+interface {{ intf }} description [TYPE={{ node.type }}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID={{ intf_attr.pcid }}]
 interface {{ intf }} bundle id {{ node.lag_id_1 }} mode active
 interface {{ intf }} lacp period short
 interface {{ intf }} carrier-delay up 500 down 0

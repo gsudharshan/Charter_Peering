@@ -171,7 +171,7 @@ set class-of-service interfaces ae{{ node.lag_id_2 }} apply-groups PEER_QOS
 #Interface Config LAG2!
 
 {% for intf, intf_attr in node.lag_id_2_links.items() %}
-set interfaces {{ intf }} description "[TYPE={{node.type}}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][$
+set interfaces {{ intf }} description "[TYPE={{node.type}}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID={{ intf_attr.pcid }}]"
 set interfaces {{ intf }} gigether-options 802.3ad ae{{ node.lag_id_2 }}
 set interfaces {{ intf }} hold-time up 500
 set interfaces {{ intf }} hold-time down 0

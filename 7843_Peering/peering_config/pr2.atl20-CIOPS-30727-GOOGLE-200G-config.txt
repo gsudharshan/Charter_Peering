@@ -1,0 +1,273 @@
+
+This Peering config is for CIOPS-30727 in pr2.atl20 for GOOGLE with capacity AE1234-200G and AE123-100G
+
+
+#CHANGE SPECIFIC PRE-CHECKS BELOW!
+
+Router Name: pr2.atl20
+
+show interfaces ae1234
+show lacp interfaces ae1234
+#Expected Output : ae1234 should free
+
+show interfaces ae123
+show lacp interfaces ae123
+#Expected Output : ae123 should free
+
+show interfaces et-0/0/0
+show interfaces diagnostics optics et-0/0/0 | match dBm | except threshold
+#Expected Output: link light level should be good and no errors to be seen!
+show interfaces et-1/0/0
+show interfaces diagnostics optics et-1/0/0 | match dBm | except threshold
+#Expected Output: link light level should be good and no errors to be seen!
+
+   
+show interfaces et-2/0/0
+show interfaces diagnostics optics et-2/0/0 | match dBm | except threshold
+#Expected Output: link light level should be good and no errors to be seen
+
+show route 138.128.140.9/31
+#Expected Output: 138.128.140.9/31 IPv4 Space should be free and should not be present in the routing table
+
+   
+show route 96.34.3.1/31
+#Expected Output: 96.34.3.1/31 IPv4 Space should be free and should not be present in the routing table
+
+show route 2a04:c606:1::9/126
+#Expected Output: 2a04:c606:1::9/126 IPv6 Space should be free and should not be present in the routing table
+
+   
+show route 2001:2234:0:2::2/127
+#Expected Output: 2001:2234:0:2::2/127 IPv6 Space should be free and should not be present in the routing table
+
+sh configuration | match p-15169-GOOGLE | display set
+#Expected Output: Ensure the new group being created doesnt exist already. if group already exists, notify P&D, only neighbor need to be added to existing group
+#WARNING: If BGP group already existed, chances of overwrite possible!! USE CAUTION!!
+
+
+show bgp summary | m 15169
+#Expected Output: Check if BGP neighbors exist, if first turn up, then there should be no output
+
+show route advertising-protocol bgp 138.128.140.8
+#Expected Output: No BGP neighbor should exist
+
+   
+show route advertising-protocol bgp 96.34.3.2
+#Expected Output: No BGP neighbor should exist
+
+show route receive-protocol bgp 138.128.140.8
+#Expected Output: No BGP neighbor should exist
+
+   
+show route receive-protocol bgp 96.34.3.2
+#Expected Output: No BGP neighbor should exist
+
+show route advertising-protocol bgp 2a04:c606:1::8
+#Expected Output: No BGP neighbor should exist
+
+   
+show route advertising-protocol bgp 2001:2234:0:3::2
+#Expected Output: No BGP neighbor should exist
+
+show route receive-protocol bgp 2a04:c606:1::8
+#Expected Output: No BGP neighbor should exist
+
+
+   
+show route receive-protocol bgp 2001:2234:0:3::2
+#Expected Output: No BGP neighbor should exist
+
+
+#CHANGE SPECIFIC CONFIGURATIONS BELOW!
+
+#START
+
+Router Name: pr2.atl20
+
+#LAG 1 Interface Configs!
+set interfaces ae1234 description "[TYPE=PEER][BW=200G][NAME=GOOGLE][AS=15169][IP=138.128.140.8]"
+set interfaces ae1234 aggregated-ether-options minimum-links 1
+set interfaces ae1234 aggregated-ether-options link-speed 100g
+set interfaces ae1234 aggregated-ether-options lacp active
+set interfaces ae1234 unit 0 family inet apply-groups rpf
+set interfaces ae1234 unit 0 family inet filter input EDGE_IN_IPV4_FILTER
+set interfaces ae1234 unit 0 family inet address 138.128.140.9/31
+set interfaces ae1234 unit 0 family inet6 apply-groups IPv6-RPF-GROUP
+set interfaces ae1234 unit 0 family inet6 filter input EDGE_IN_IPV6_FILTER
+set interfaces ae1234 unit 0 family inet6 address 2a04:c606:1::9/126
+set class-of-service interfaces ae1234 apply-groups PEER_QOS
+
+#Interface Config LAG 1!
+
+set interfaces et-0/0/0 description "[TYPE=PEER][BW=100G][NAME=GOOGLE][AS=15169][LAG=1234][GRNT=chn00499470][JIRA=CIOPS-30727][CCID=21374446][PCID=]"
+set interfaces et-0/0/0 hold-time up 500
+set interfaces et-0/0/0 hold-time down 0
+set interfaces et-0/0/0 damping half-life 1
+set interfaces et-0/0/0 damping max-suppress 4
+set interfaces et-0/0/0 damping reuse 750
+set interfaces et-0/0/0 damping suppress 2000
+set interfaces et-0/0/0 damping enable
+set interfaces et-0/0/0 gigether-options 802.3ad ae1234
+set interfaces et-1/0/0 description "[TYPE=PEER][BW=100G][NAME=GOOGLE][AS=15169][LAG=1234][GRNT=chn00499471][JIRA=CIOPS-30727][CCID=21374447][PCID=]"
+set interfaces et-1/0/0 hold-time up 500
+set interfaces et-1/0/0 hold-time down 0
+set interfaces et-1/0/0 damping half-life 1
+set interfaces et-1/0/0 damping max-suppress 4
+set interfaces et-1/0/0 damping reuse 750
+set interfaces et-1/0/0 damping suppress 2000
+set interfaces et-1/0/0 damping enable
+set interfaces et-1/0/0 gigether-options 802.3ad ae1234
+
+
+#LAG 2 Interface Configs!
+set interfaces ae123 description "[TYPE=PEER][BW=100G][NAME=GOOGLE][AS=15169][IP=96.34.3.2]" 
+set interfaces ae123 aggregated-ether-options minimum-links 1
+set interfaces ae123 aggregated-ether-options link-speed 100g
+set interfaces ae123 aggregated-ether-options lacp active
+set interfaces ae123 unit 0 family inet apply-groups rpf
+set interfaces ae123 unit 0 family inet filter input EDGE_IN_IPV4_FILTER
+set interfaces ae123 unit 0 family inet address 96.34.3.1/31
+set interfaces ae123 unit 0 family inet6 apply-groups IPv6-RPF-GROUP
+set interfaces ae123 unit 0 family inet6 filter input EDGE_IN_IPV6_FILTER
+set interfaces ae123 unit 0 family inet6 address 2001:2234:0:2::2/127
+set class-of-service interfaces ae123 apply-groups PEER_QOS
+
+#Interface Config LAG 2!
+
+set interfaces et-2/0/0 description "[TYPE=PEER][BW=100G][NAME=GOOGLE][AS=15169][LAG=123][GRNT=chn00499492][JIRA=CIOPS-30727][CCID=21373150-Z][PCID=179545]"
+set interfaces et-2/0/0 hold-time up 500
+set interfaces et-2/0/0 hold-time down 0
+set interfaces et-2/0/0 damping half-life 1
+set interfaces et-2/0/0 damping max-suppress 4
+set interfaces et-2/0/0 damping reuse 750
+set interfaces et-2/0/0 damping suppress 2000
+set interfaces et-2/0/0 damping enable
+set interfaces et-2/0/0 gigether-options 802.3ad ae123
+
+
+
+#BGP Configs!
+
+set protocols bgp group p-15169-GOOGLE apply-groups bgp-peer
+set protocols bgp group p-15169-GOOGLE description GOOGLE_AS15169_SFI
+set protocols bgp group p-15169-GOOGLE import ( PEER-IN && AS15169-IN )
+set protocols bgp group p-15169-GOOGLE family inet unicast prefix-limit maximum 10000
+set protocols bgp group p-15169-GOOGLE family inet unicast prefix-limit teardown 90
+set protocols bgp group p-15169-GOOGLE family inet6 unicast prefix-limit maximum 1000
+set protocols bgp group p-15169-GOOGLE family inet6 unicast prefix-limit teardown 90
+set protocols bgp group p-15169-GOOGLE export PEER-OUT-v6
+set protocols bgp group p-15169-GOOGLE export ( AS15169-OUT && PEER-OUT )
+set protocols bgp group p-15169-GOOGLE peer-as 15169
+set protocols bgp group p-15169-GOOGLE multipath
+set protocols bgp group p-15169-GOOGLE neighbor 138.128.140.8
+set protocols bgp group p-15169-GOOGLE neighbor 138.128.140.8 authentication-key jutran7dEbUwr6c9
+set protocols bgp group p-15169-GOOGLE neighbor 96.34.3.2
+set protocols bgp group p-15169-GOOGLE neighbor 96.34.3.2 authentication-key jutran7dEbUwr6c9
+set protocols bgp group p-15169-GOOGLE neighbor 2a04:c606:1::8 family inet6 unicast
+ 
+set protocols bgp group p-15169-GOOGLE neighbor 2a04:c606:1::8 authentication-key jutran7dEbUwr6c9 
+set protocols bgp group p-15169-GOOGLE neighbor 2001:2234:0:3::2 family inet6 unicast
+set protocols bgp group p-15169-GOOGLE neighbor 2a04:c606:1::8 authentication-key jutran7dEbUwr6c9
+
+set policy-options policy-statement AS15169-OUT term SUPPRESS from community SUPPRESS-TO-AS15169
+set policy-options policy-statement AS15169-OUT term SUPPRESS then reject
+set policy-options policy-statement AS15169-OUT term PREPEND-ONE from community PREPEND-ONE-AS15169
+set policy-options policy-statement AS15169-OUT term PREPEND-ONE then as-path-prepend 7843
+set policy-options policy-statement AS15169-OUT term PREPEND-ONE then accept
+set policy-options policy-statement AS15169-OUT term PREPEND-TWO from community PREPEND-TWO-AS15169
+set policy-options policy-statement AS15169-OUT term PREPEND-TWO then as-path-prepend "7843 7843"
+set policy-options policy-statement AS15169-OUT term PREPEND-TWO then accept
+set policy-options policy-statement AS15169-OUT term PREPEND-THREE from community PREPEND-THREE-AS15169
+set policy-options policy-statement AS15169-OUT term PREPEND-THREE then as-path-prepend "7843 7843 7843"
+set policy-options policy-statement AS15169-OUT term PREPEND-THREE then accept
+
+set policy-options community PREPEND-ONE-AS15169 members 65001:15169
+set policy-options community PREPEND-THREE-AS15169 members 65003:15169
+set policy-options community PREPEND-TWO-AS15169 members 65002:15169
+set policy-options community SUPPRESS-TO-AS15169 members 65000:15169
+
+set policy-options policy-statement AS15169-IN term LOCAL-PREF then local-preference 100
+set policy-options policy-statement AS15169-IN term LOCAL-PREF then accept
+
+#END
+
+
+#CHANGE SPECIFIC POST-CHECKS BELOW!
+
+Router Name: pr2.atl20
+
+show int ae1234
+show lacp interfaces ae1234
+#Expected Output : ae1234 should be UP
+
+show route 138.128.140.9/31
+#Expected Output: 138.128.140.9/31 IPv4 Space should be present as connected route in the routing table
+
+show route 2a04:c606:1::9/126
+#Expected Output: 2a04:c606:1::9/126 IPv6 Space should be present as connected route in the routing table
+
+ping 138.128.140.8 source 138.128.140.9 count 1000 rapid
+ping 2a04:c606:1::8 source 2a04:c606:1::9 count 1000 rapid
+
+show int ae123
+show lacp interfaces ae123
+#Expected Output : ae123 should be UP
+
+show route 96.34.3.1/31
+#Expected Output: 96.34.3.1/31 IPv4 Space should be present as connected route in the routing table
+
+show route 2001:2234:0:2::2/127
+#Expected Output: 2001:2234:0:2::2/127 IPv6 Space should be present as connected route in the routing table
+
+ping 96.34.3.2 source 96.34.3.1 count 1000 rapid
+ping 2001:2234:0:3::2 source 2001:2234:0:2::2 count 1000 rapid
+
+show bgp summary | m 15169
+#Expected Output: Newly configured 138.128.140.8 & 2a04:c606:1::8 BGP neighbors state to be UP
+   
+!Expected Output: Newly configured 96.34.3.2 & 2001:2234:0:3::2 BGP neighbors state to be UP
+
+show bgp neighbor 138.128.140.8
+show bgp neighbor 2a04:c606:1::8
+#Expected Output: Check if the newly configured neighbors are looking good.
+
+show bgp neighbor node.bgp.peer_ipv4_2
+show bgp neighbor node.bgp.peer_ipv6_2
+#Expected Output: Check if the newly configured neighbors are looking good.
+
+show route advertising-protocol bgp 138.128.140.8
+#Expected Output: AS20115 full customer route IPV4 table should be exported
+
+show route advertising-protocol bgp 96.34.3.2
+#Expected Output: AS20115 full customer route IPV4 table should be exported
+
+show route receive-protocol bgp 138.128.140.8
+#Expected Output: AS15169 IPv4 routes should be received
+
+show route receive-protocol bgp 96.34.3.2
+#Expected Output: AS15169 IPv4 routes should be received
+
+show route advertising-protocol bgp 2a04:c606:1::8
+#Expected Output: AS20115 full customer route IPV6 table should be exported
+
+show route advertising-protocol bgp 2001:2234:0:3::2
+#Expected Output: AS20115 full customer route IPV6 table should be exported 
+
+show route receive-protocol bgp 2a04:c606:1::8
+#Expected Output: AS15169 IPv6 routes should be received
+
+
+show route receive-protocol bgp 2001:2234:0:3::2
+#Expected Output: AS15169 IPv6 routes should be received
+
+
+show interfaces et-0/0/0
+show interfaces et-0/0/0 extensive | match err
+show interfaces et-1/0/0
+show interfaces et-1/0/0 extensive | match err
+#Expected Output: no errors to be seen!
+
+   
+show interfaces et-2/0/0
+show interfaces et-2/0/0 extensive | match err
+#Expected Output: no errors to be seen!
