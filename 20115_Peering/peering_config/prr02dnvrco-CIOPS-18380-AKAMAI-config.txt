@@ -1,0 +1,170 @@
+
+This Peering config is for CIOPS-18380 in prr02dnvrco for AKAMAI with capacity AE1018-300G
+
+
+#CHANGE SPECIFIC PRE-CHECKS BELOW!
+
+Router Name: prr02dnvrco
+
+show interfaces ae1018
+show lacp interfaces ae1018
+
+
+show interfaces Hu0/0/0/5
+show interfaces diagnostics optics Hu0/0/0/5 | match dBm | except threshold
+show interfaces Hu0/0/0/6
+show interfaces diagnostics optics Hu0/0/0/6 | match dBm | except threshold
+show interfaces Hu0/0/0/7
+show interfaces diagnostics optics Hu0/0/0/7 | match dBm | except threshold
+
+
+show route 209.85.168.185/31
+
+
+show route 2001:4860:1:1::16cf/127
+
+
+
+sh configuration | match p-20940-AKAMAI | display set
+#Expected Output: Ensure the new group being created doesnt exist already. if group already exists, notify P&D, only neighbor need to be added to existing group
+#WARNING: If BGP group already existed, chances of overwrite possible!! USE CAUTION!!
+
+
+show bgp summary | m 20940
+
+
+ 
+show route advertising-protocol bgp 209.85.168.184
+
+
+show route receive-protocol bgp 209.85.168.184
+
+
+
+show route advertising-protocol bgp 2001:4860:2:1::16ce
+
+
+
+show route receive-protocol bgp 2001:4860:2:1::16ce
+
+
+
+
+#CHANGE SPECIFIC CONFIGURATIONS BELOW!
+
+START
+
+Router Name: prr02dnvrco
+
+#LAG 1 Interface Configs!
+set interfaces ae1018 description "[TYPE=PEER][BW=300G][NAME=AKAMAI][AS=20940][GRNT=CHN00499491][IP=209.85.168.184]"
+set interfaces ae1018 aggregated-ether-options minimum-links 1
+set interfaces ae1018 aggregated-ether-options link-speed 100g
+set interfaces ae1018 aggregated-ether-options lacp active
+set interfaces ae1018 unit 0 family inet apply-groups rpf
+set interfaces ae1018 unit 0 family inet filter input EDGE_IN_IPV4_FILTER
+set interfaces ae1018 unit 0 family inet address 209.85.168.185/31
+set interfaces ae1018 unit 0 family inet6 apply-groups IPv6-RPF-GROUP
+set interfaces ae1018 unit 0 family inet6 filter input EDGE_IN_IPV6_FILTER
+set interfaces ae1018 unit 0 family inet6 address 2001:4860:1:1::16cf/127
+set class-of-service interfaces ae1018 apply-groups PEER_QOS
+
+#Interface Config LAG!
+
+set interfaces Hu0/0/0/5 description "[TYPE=PEER][BW=100G][NAME=AKAMAI][AS=20940][LAG=1018][GRNT=CHN00499492][JIRA=CIOPS-18380][CCID=21373149-Z][PCID=179119]"
+set interfaces Hu0/0/0/5 gigether-options 802.3ad ae1018
+set interfaces Hu0/0/0/5 hold-time up 500
+set interfaces Hu0/0/0/5 hold-time down 0
+set interfaces Hu0/0/0/5 damping half-life 1
+set interfaces Hu0/0/0/5 damping max-suppress 4
+set interfaces Hu0/0/0/5 damping reuse 750
+set interfaces Hu0/0/0/5 damping suppress 2000
+set interfaces Hu0/0/0/5 damping enable
+set interfaces Hu0/0/0/6 description "[TYPE=PEER][BW=100G][NAME=AKAMAI][AS=20940][LAG=1018][GRNT=CHN00499492][JIRA=CIOPS-18380][CCID=21373149-Z][PCID=179119]"
+set interfaces Hu0/0/0/6 gigether-options 802.3ad ae1018
+set interfaces Hu0/0/0/6 hold-time up 500
+set interfaces Hu0/0/0/6 hold-time down 0
+set interfaces Hu0/0/0/6 damping half-life 1
+set interfaces Hu0/0/0/6 damping max-suppress 4
+set interfaces Hu0/0/0/6 damping reuse 750
+set interfaces Hu0/0/0/6 damping suppress 2000
+set interfaces Hu0/0/0/6 damping enable
+set interfaces Hu0/0/0/7 description "[TYPE=PEER][BW=100G][NAME=AKAMAI][AS=20940][LAG=1018][GRNT=CHN00499492][JIRA=CIOPS-18380][CCID=21373149-Z][PCID=179119]"
+set interfaces Hu0/0/0/7 gigether-options 802.3ad ae1018
+set interfaces Hu0/0/0/7 hold-time up 500
+set interfaces Hu0/0/0/7 hold-time down 0
+set interfaces Hu0/0/0/7 damping half-life 1
+set interfaces Hu0/0/0/7 damping max-suppress 4
+set interfaces Hu0/0/0/7 damping reuse 750
+set interfaces Hu0/0/0/7 damping suppress 2000
+set interfaces Hu0/0/0/7 damping enable
+
+
+
+#BGP Configs!
+
+set protocols bgp group p-20940-AKAMAI apply-groups bgp-peer
+set protocols bgp group p-20940-AKAMAI description "https://www.peeringdb.com/asn/20940"
+set protocols bgp group p-20940-AKAMAI import INBOUND-PEERS
+set protocols bgp group p-20940-AKAMAI import FINAL-POLICY
+set protocols bgp group p-20940-AKAMAI family inet unicast prefix-limit maximum 15000
+set protocols bgp group p-20940-AKAMAI family inet unicast prefix-limit teardown 90
+set protocols bgp group p-20940-AKAMAI family inet6 unicast prefix-limit maximum 10000
+set protocols bgp group p-20940-AKAMAI family inet6 unicast prefix-limit teardown 90
+set protocols bgp group p-20940-AKAMAI authentication-key jutran7dEbUwr6c9
+set protocols bgp group p-20940-AKAMAI export OUTBOUND-PEERS-FILTER
+set protocols bgp group p-20940-AKAMAI export ALL-REGIONAL-AGGS
+set protocols bgp group p-20940-AKAMAI export OUTBOUND-PEERS-KMA
+set protocols bgp group p-20940-AKAMAI export FINAL-POLICY
+set protocols bgp group p-20940-AKAMAI peer-as 20940
+
+set protocols bgp group p-20940-AKAMAI neighbor 209.85.168.184
+
+
+set protocols bgp group p-20940-AKAMAI neighbor 2001:4860:2:1::16ce
+
+
+END
+
+
+#CHANGE SPECIFIC POST-CHECKS BELOW!
+
+Router Name: prr02dnvrco
+
+show int ae1018
+show lacp interfaces ae1018
+show interfaces 1018 extensive | match err
+
+show route 209.85.168.185/31
+show route 2001:4860:1:1::16cf/127
+
+ping 209.85.168.184 source 209.85.168.185 count 1000 rapid
+ping 2001:4860:2:1::16ce source 2001:4860:1:1::16cf count 1000 rapid
+
+
+show bgp summary | m 20940
+show bgp neighbor 209.85.168.184
+show bgp neighbor 2001:4860:2:1::16ce
+
+
+
+show route advertising-protocol bgp 209.85.168.184
+
+
+show route receive-protocol bgp 209.85.168.184
+
+
+show route advertising-protocol bgp 2001:4860:2:1::16ce
+
+
+show route receive-protocol bgp 2001:4860:2:1::16ce
+
+
+
+show interfaces Hu0/0/0/7
+show interfaces Hu0/0/0/7 extensive | match err
+show interfaces Hu0/0/0/6
+show interfaces Hu0/0/0/6 extensive | match err
+show interfaces Hu0/0/0/5
+show interfaces Hu0/0/0/5 extensive | match err
+

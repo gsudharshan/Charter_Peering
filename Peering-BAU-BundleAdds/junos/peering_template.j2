@@ -1,46 +1,43 @@
 {% set node = nodes[inventory_hostname] %}
 
-{% if node.lag_id_2 != None %}
-This Peering Bundle config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity AE{{node.lag_id_1}}-{{ node.lag_bw_1 }}G and AE{{node.lag_id_2}}-{{ node.lag_bw_2 }}G
-{% else %}
-This Peering Bundle config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity AE{{node.lag_id_1}}-{{ node.lag_bw_1 }}G
+{% if node.lag_id_2 is defined %}
+This Peering Bundle config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity BE{{node.lag_id_1}}-{{ node.lag_id_1_add }}G and BE{{node.lag_id_2 }}-{{ node.lag_id_1_add }}G
+{% else %} 
+This Peering Bundle config is for {{ node.jira }} in {{ inventory_hostname }} for {{ node.name|upper }} with capacity BE{{node.lag_id_1}}-{{ node.lag_id_1_add }}G 
 {% endif %}
+
 
 !CHANGE SPECIFIC PRE-CHECKS BELOW!
 
 Router Name: {{ inventory_hostname }}
 
-{% if node.lag_id_1 != None %}
+{% if node.lag_id_1 is defined %}
 show interfaces ae{{ node.lag_id_1 }}
 show lacp interfaces ae{{ node.lag_id_1 }}
-!Expected Output : Check be{{ node.lag_id_1 }} existing links
 {% else %}
 {% endif %}
 
-{% if node.lag_id_2 != None %}
+{% if node.lag_id_2 is defined %}
 show interfaces ae{{ node.lag_id_2 }}
 show lacp interfaces ae{{ node.lag_id_2 }} 
-!Expected Output : Check be{{ node.lag_id_2 }} existing links
 {% else %}
 {% endif %}
 
-{% if node.lag_id_1 != None %}
+{% if node.lag_id_1 is defined %}
 {% for intf,intf_attr in node.lag_id_1_links.items()|sort %}
 show interfaces {{ intf }}
 show interfaces diagnostics optics {{ intf }} | match dBm | except threshold
 
 {% endfor %}
-!Expected Output: link light level should be good
 {% else %}
 {% endif %}
 
-{% if node.lag_id_2 != None %}
+{% if node.lag_id_2 is defined %}
 {% for intf,intf_attr in node.lag_id_2_links.items()|sort %}
 show interfaces {{ intf }}
 show interfaces diagnostics optics {{ intf }} | match dBm | except threshold
 
 {% endfor %}
-!Expected Output: link light level should be good
 {% else %}
 {% endif %}
 
@@ -52,14 +49,14 @@ START
 Router Name: {{ inventory_hostname }}
 
 
-{% if node.lag_id_1 != None %}
+{% if node.lag_id_1 is defined %}
 
 !Interface Config LAG1!
 
-set interfaces ae{{ node.lag_id_1 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_1 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][IP={{ node.bgp.peer_ipv4_1 }}]"
+set interfaces ae{{ node.lag_id_1 }} description "[TYPE={{ node.type|upper }}][BW={{ node.lag_bw_1 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grnt_1|upper }}][IP={{ node.bgp.peer_ipv4_1 }}]"
 
 {% for intf, intf_attr in node.lag_id_1_links.items()|sort %}
-set interfaces {{ intf }} description "[TYPE={{node.type}}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID={{ intf_attr.pcid }}]"
+set interfaces {{ intf }} description "[TYPE={{node.type|upper}}][BW={{ node.lag_id_1_link_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt|upper }}][JIRA={{ node.jira|upper }}][CCID={{ intf_attr.ccid|upper }}][PCID={{ intf_attr.pcid|upper }}]"
 set interfaces {{ intf }} hold-time up 500
 set interfaces {{ intf }} hold-time down 0
 set interfaces {{ intf }} damping half-life 1
@@ -74,14 +71,14 @@ set interfaces {{ intf }} gigether-options 802.3ad ae{{ node.lag_id_1 }}
 {% endif %}
 
 
-{% if node.lag_id_2 != None %}    
+{% if node.lag_id_2 is defined %}    
 
 !Interface Config LAG2!
 
-set interfaces ae{{ node.lag_id_2 }} description "[TYPE={{ node.type }}][BW={{ node.lag_bw_2 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][IP={{ node.bgp.peer_ipv4_2 }}]"
+set interfaces ae{{ node.lag_id_2 }} description "[TYPE={{ node.type|upper }}][BW={{ node.lag_bw_2 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grnt_1|upper }}][IP={{ node.bgp.peer_ipv4_2 }}]"
 
 {% for intf, intf_attr in node.lag_id_2_links.items()|sort %}
-set interfaces {{ intf }} description "[TYPE={{node.type}}][BW={{ intf_attr.int_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt }}][JIRA={{ node.jira }}][CCID={{ intf_attr.ccid }}][PCID={{ intf_attr.pcid }}]"
+set interfaces {{ intf }} description "[TYPE={{node.type|upper}}][BW={{ node.lag_id_1_link_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt|upper }}][JIRA={{ node.jira|upper }}][CCID={{ intf_attr.ccid|upper }}][PCID={{ intf_attr.pcid|upper }}]"
 set interfaces {{ intf }} hold-time up 500
 set interfaces {{ intf }} hold-time down 0
 set interfaces {{ intf }} damping half-life 1
@@ -102,34 +99,34 @@ END
 
 Router Name: {{ inventory_hostname }}
 
-{% if node.lag_id_1 != None %}
+{% if node.lag_id_1 is defined %}
 show int ae{{ node.lag_id_1 }}
 show lacp interfaces ae{{ node.lag_id_1 }}
-!Expected Output : Check ae{{ node.lag_id_1 }} has the new links active in the bundle
+
 {% else %}
 {% endif %}
 
-{% if node.lag_id_2 != None %}
+{% if node.lag_id_2 is defined %}
 show int ae{{ node.lag_id_2 }}
 show lacp interfaces ae{{ node.lag_id_2 }}
-!Expected Output : Check ae{{ node.lag_id_2 }} has the new links active in the bundle
+
 {% else %}
 {% endif %}
 
-{% if node.lag_id_1 != None %}
+{% if node.lag_id_1 is defined %}
 {% for intf,intf_attr in node.lag_id_1_links.items()|sort %}
 show interfaces {{ intf }}
 show interfaces {{ intf }} extensive | match err
 {% endfor %}
-!Expected Output: no errors to be seen!
+
 {% else %}
 {% endif %}
 
-{% if node.lag_id_2 != None %}   
+{% if node.lag_id_2 is defined %}   
 {% for intf,intf_attr in node.lag_id_2_links.items()|sort %}
 show interfaces {{ intf }}
 show interfaces {{ intf }} extensive | match err
 {% endfor %}
-!Expected Output: no errors to be seen!
+
 {% else %}
 {% endif %}
