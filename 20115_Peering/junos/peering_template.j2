@@ -265,6 +265,7 @@ set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbo
 
 {% if node.bgp.peer_ipv6_multihop_1 is defined %}
 set routing-options static route {{ node.bgp.peer_ipv6_multihop_1}}/128 next-hop {{ node.bgp.peer_ipv6_1 }}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_multihop_1 }} family inet6 unicast
 set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_multihop_1 }} multihop ttl {{ node.bgp.peer_multihop_1_ttl }}
 {% if node.bgp.ipv6_md5 is defined %}
 set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_multihop_1 }} authentication-key {{ node.bgp.ipv6_md5 }}
@@ -275,7 +276,7 @@ set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbo
 {% else %}               
 {% endif %}
 {% elif node.bgp.peer_ipv6_1 is defined %}
-set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_1 }}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_1 }} family inet6 unicast
 {% if node.bgp.ipv6_md5 is defined %}
 set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_1 }} authentication-key {{ node.bgp.ipv6_md5 }}
 {% else %}
@@ -289,6 +290,7 @@ set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbo
 
 {% if node.bgp.peer_ipv6_multihop_2 is defined %}
 set routing-options static route {{ node.bgp.peer_ipv6_multihop_2}}/128 next-hop {{ node.bgp.peer_ipv6_2 }}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_multihop_2 }} family inet6 unicast
 set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_multihop_2 }} multihop ttl {{ node.bgp.peer_multihop_2_ttl }}
 {% if node.bgp.ipv6_md5 is defined %}
 set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_multihop_2 }} authentication-key {{ node.bgp.ipv6_md5 }}
@@ -299,7 +301,7 @@ set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbo
 {% else %}               
 {% endif %}
 {% elif node.bgp.peer_ipv6_2 is defined %}
-set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_2 }}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_2 }} family inet6 unicast
 {% if node.bgp.ipv6_md5 is defined %}
 set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} neighbor {{ node.bgp.peer_ipv6_2 }} authentication-key {{ node.bgp.ipv6_md5 }}
 {% else %}
@@ -321,7 +323,7 @@ Router Name: {{ inventory_hostname }}
 {% if node.lag_id_1 is defined %}
 show int ae{{ node.lag_id_1 }}
 show lacp interfaces ae{{ node.lag_id_1 }}
-show interfaces {{ node.lag_id_1 }} extensive | match err
+show interfaces ae{{ node.lag_id_1 }} extensive | match err
 
 show route {{ node.lag_local_ipv4_1 }}
 show route {{ node.lag_local_ipv6_1 }}
@@ -334,7 +336,7 @@ ping {{node.bgp.peer_ipv6_1}} source {{node.lag_local_ipv6_1.split("/")[0]}} cou
 {% if node.lag_id_2 is defined %}
 show int ae{{ node.lag_id_2 }}
 show lacp interfaces ae{{ node.lag_id_2 }}
-show interfaces {{ node.lag_id_2 }} extensive | match err
+show interfaces ae{{ node.lag_id_2 }} extensive | match err
 
 show route {{ node.lag_local_ipv4_2 }}
 show route {{ node.lag_local_ipv6_2 }}
