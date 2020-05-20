@@ -206,7 +206,7 @@ router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ 
 router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_GROUP address-family ipv4 unicast send-community-ebgp
 router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_GROUP address-family ipv4 unicast route-policy INBOUND-PEERS in
 router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_GROUP address-family ipv4 unicast maximum-prefix {{ node.bgp.ipv4_prefix_limit }} {{ node.bgp.ipv4_prefix_limit_teardown }}
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_GROUP address-family ipv4 unicast route-policy OUTBOUND_PEERS out
+router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_GROUP address-family ipv4 unicast route-policy OUTBOUND-PEERS out
 router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_GROUP address-family ipv4 unicast remove-private-AS
 {% if node.lag_id_2 is defined %}
 router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_GROUP address-family ipv4 unicast multipath
