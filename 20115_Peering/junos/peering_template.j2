@@ -198,9 +198,9 @@ set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} descrip
 set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} import INBOUND-PEERS
 set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} import FINAL-POLICY
 set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} family inet unicast prefix-limit maximum {{ node.bgp.ipv4_prefix_limit }}
-set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} family inet unicast prefix-limit teardown {{ node.bgp.ipv4_prefix_limit_teardown }}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} family inet unicast prefix-limit teardown 90
 set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} family inet6 unicast prefix-limit maximum {{ node.bgp.ipv6_prefix_limit }}
-set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} family inet6 unicast prefix-limit teardown {{ node.bgp.ipv6_prefix_limit_teardown }}
+set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} family inet6 unicast prefix-limit teardown 90
 {% if node.bgp.group_md5 is defined %}
 set protocols bgp group p-{{ node.bgp.remote_as }}-{{ node.name|upper }} authentication-key {{ node.bgp.group_md5 }}
 {% else %}
