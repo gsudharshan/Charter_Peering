@@ -1,213 +1,71 @@
-################ INSTRUCTIONS FOR CIOPS ####################
-
-# If 2nd LAG is not need, just leave lag_id_2: <empty> and no action will be performed
-# If lag_id_1 and lag_id_2 is left <empty>, then the output will switch to public peering template
-# lag_bw_1 and lag_bw_2 is the total LAG capacity after the upgrades
-# lag_id_1_lacp and lag_id_2_lacp is included to setup lacp bw configuration for the Juniper routers.                                                  
-# group_md5: is included to include md5 password at group for Juniper routers
-
-
-# CIOPS team will supply the variables needed for each router, peer or JIRA ticket
-# CIOPS team can provide one yaml file for multiple routers or for a specific peer turn up in multiple routers
-# CIOPS team will not modify any fields shown below, leave fields empty if you dont have info to fill in
-# Each node shown below will generate configurations based on the router type. Backbone PD needs to ensure to use the correct JINJA2 templates to generate the configurations
-
 ---
 
 
-nodes:
+nodes: 
 
-  pr1.mia00:
-    name: fastly
-    type: peer
-    jira: CIOPS-29273
-    lag_id_1: 2026
-    lag_id_1_link_bw: 100
-    lag_bw_1: 100
-    lag_grnt_1: chn00499940
-    lag_local_ipv4_1: "167.82.128.117/31"
-    lag_local_ipv6_1: "2620:011a:c000:0571:fa57::1/127"
-    lag_id_1_links:
-                 et-3/1/13: { int_grnt: chn00499910, ccid: 21404906-Z, pcid: TWC-MIA-176-7 }
 
-    lag_id_2: 2027
-    lag_id_2_link_bw: 100
-    lag_bw_2: 100
-    lag_grnt_2: chn00499941
-    lag_local_ipv4_2: "167.82.128.119/31"
-    lag_local_ipv6_2: "2620:011a:c000:0572:fa57::1/127"
-    lag_id_2_links:
-                 et-3/1/14: { int_grnt: chn00499911, ccid: 21404873-Z, pcid: TWC-MIA-176-7 }
-    bgp:
-       ipv4_prefix_limit: 1000
-       ipv4_prefix_limit_teardown: 90
-       ipv6_prefix_limit: 1000
-       ipv6_prefix_limit_teardown: 90
-       peer_ipv4_1: 167.82.128.116
-       peer_ipv6_1: "2620:011a:c000:0571:fa57::"
-       peer_ipv4_2: 167.82.128.118
-       peer_ipv6_2: "2620:011a:c000:0572:fa57::"
-       local_as: 7843
-       remote_as: 54113    
-
-  cr0.tpa00:
-    name: akamai
+  pr0.nyc20:
+    name: Roblox
     type: PEER
-    jira: CIOPS-18380
-    lag_id_1: 1018
-    lag_id_1_link_bw: 100
-    lag_bw_1: 300
-    lag_grnt_1: chn00499491
-    lag_local_ipv4_1: "209.85.168.185/31"
-    lag_local_ipv6_1: "2001:4860:1:1::16cf/127"
-    lag_id_1_links:
-                 Hu0/0/0/7: { int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
-                 Hu0/0/0/6: { int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
-                 Hu0/0/0/5: { int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
-
-    bgp:
-       group_md5: jutran7dEbUwr6c9
-       ipv4_prefix_limit: 15000
-       ipv4_prefix_limit_teardown: 90
-       ipv6_prefix_limit: 10000
-       ipv6_prefix_limit_teardown: 90
-       peer_ipv4_1: 209.85.168.184
-       peer_ipv6_1: "2001:4860:2:1::16ce"
-       local_as: 20115
-       remote_as: 20940    
-
-  cr0.lax00:
-    name: akamai
+    jira: CIOPS-29587
+    lag_local_ipv4_1: 198.32.118.83
+    lag_local_ipv6_1: 2001:504:f::53
+    bgp: 
+        ipv4_prefix_limit: 100
+        ipv6_prefix_limit: 10
+        peer_ipv4_1: 198.32.118.69
+        peer_ipv6_1: 2001:504:f::2:2697:1
+        local_as: 20115
+        remote_as: 22697
+  pr1.sjc10:
+    name: Roblox
     type: PEER
-    jira: CIOPS-18380
-    lag_id_1: 1018
-    lag_id_1_link_bw: 100
-    lag_bw_1: 300
-    lag_grnt_1: chn00499491
-    lag_local_ipv4_1: "209.85.168.185/31"
-    lag_local_ipv6_1: "2001:4860:1:1::16cf/127"
-    lag_id_1_links:
-                 Hu0/0/0/7: { int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
-                 Hu0/0/0/6: { int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
-                 Hu0/0/0/5: { int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
-
-
-    lag_id_2: 1584
-    lag_id_2_link_bw: 100
-    lag_bw_2: 100
-    lag_grnt_2: chn00499493
-    lag_local_ipv4_2: "96.34.3.1/31"
-    lag_local_ipv6_2: "2001:2234:0:2::2/127"
-    lag_id_2_links:
-                 Hu0/1/2/0: { int_grnt: chn00499492, ccid: 21373150-Z, pcid: 179545 }
-
-    bgp:
-       group_md5:
-       ipv4_md5: jutran7dEbUwr6c9
-       ipv6_md5: jutran7dEbUwr6c9
-       ipv4_prefix_limit: 15000
-       ipv4_prefix_limit_teardown: 90
-       ipv6_prefix_limit: 10000
-       ipv6_prefix_limit_teardown: 90
-       timers_keep: 60
-       timers_hold: 180
-       timers_min_hold: 45
-       peer_ipv4_1: 209.85.168.184
-       peer_ipv6_1: "2001:4860:2:1::16ce"
-       peer_ipv4_2: 96.34.3.2
-       peer_ipv6_2: "2001:2234:0:2::3"
-
-       peer_ipv4_multihop_1: 1.1.1.1
-       peer_ipv6_multihop_1: "2001::1"
-       peer_multihop_1_ttl: 4
-       peer_ipv4_multihop_2: 2.2.2.2
-       peer_ipv6_multihop_2: "2002::2"
-       peer_multihop_2_ttl: 4
-       local_as: 20115
-       remote_as: 20940
-
-  cr0.dca10:
-    name: akamai
+    jira: CIOPS-29588
+    lag_local_ipv4_1: 206.223.117.90
+    lag_local_ipv6_1: 2001:504:0:1::7843:1
+    bgp: 
+        ipv4_prefix_limit: 100
+        ipv6_prefix_limit: 10
+        peer_ipv4_1: 206.223.117.30
+        peer_ipv6_1: 2001:504:0:1:0:2:2697:1
+        local_as: 20115
+        remote_as: 22697
+  pr2.chi10:
+    name: Roblox
     type: PEER
-    jira: CIOPS-18380
-    lag_local_ipv4_1: "209.85.168.185/31"
-    lag_local_ipv6_1: "2001:4860:1:1::16cf/127"
-
-    bgp:
-       group_md5: jutran7dEbUwr6c9
-       ipv4_prefix_limit: 15000
-       ipv4_prefix_limit_teardown: 90
-       ipv6_prefix_limit: 10000
-       ipv6_prefix_limit_teardown: 90
-       peer_ipv4_1: 209.85.168.184
-       peer_ipv6_1: "2001:4860:2:1::16ce"
-       local_as: 20115
-       remote_as: 20940
-
-  pr2.atl20:
-    name: akamai
+    jira: CIOPS-29585
+    lag_local_ipv4_1: 208.115.136.70
+    lag_local_ipv6_1: 2001:504:0:4::7843:1
+    bgp: 
+        ipv4_prefix_limit: 100
+        ipv6_prefix_limit: 10
+        peer_ipv4_1: 208.115.137.14
+        peer_ipv6_1: 2001:504:0:4:0:2:2697:1
+        local_as: 20115
+        remote_as: 22697
+  pr2.dca10:
+    name: Roblox
     type: PEER
-    jira: CIOPS-18380
-    lag_local_ipv4_1: "209.85.168.185/31"
-    lag_local_ipv6_1: "2001:4860:1:1::16cf/127"
-
-    bgp:
-       group_md5: jutran7dEbUwr6c9
-       ipv4_prefix_limit: 15000
-       ipv4_prefix_limit_teardown: 90
-       ipv6_prefix_limit: 10000
-       ipv6_prefix_limit_teardown: 90
-       peer_ipv4_1: 209.85.168.184
-       peer_ipv6_1: "2001:4860:2:1::16ce"
-       local_as: 20115
-       remote_as: 20940
-
-  pr3.dfw10:
-    name: akamai
+    jira: CIOPS-29584
+    lag_local_ipv4_1: 206.126.238.34
+    lag_local_ipv6_1: 2001:504:0:2::7843:1
+    bgp: 
+        ipv4_prefix_limit: 100
+        ipv6_prefix_limit: 10
+        peer_ipv4_1: 206.126.238.148
+        peer_ipv6_1: 2001:504:0:2:0:2:2697:2
+        local_as: 20115
+        remote_as: 22697
+  pr2.lax10:
+    name: Roblox
     type: PEER
-    jira: CIOPS-18380
-    lag_id_1: 1018
-    lag_id_1_link_bw: 100
-    lag_bw_1: 300
-    lag_grnt_1: chn00499491
-    lag_local_ipv4_1: "209.85.168.185/31"
-    lag_local_ipv6_1: "2001:4860:1:1::16cf/127"
-    lag_id_1_links:
-                 Hu0/0/0/7: { int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
-                 Hu0/0/0/6: { int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
-                 Hu0/0/0/5: { int_grnt: chn00499492, ccid: 21373149-Z, pcid: 179119 }
-
-
-    lag_id_2: 1584
-    lag_id_2_link_bw: 100
-    lag_bw_2: 100
-    lag_grnt_2: chn00499493
-    lag_local_ipv4_2: "96.34.3.1/31"
-    lag_local_ipv6_2: "2001:2234:0:2::2/127"
-    lag_id_2_links:
-                 Hu0/1/2/0: { int_grnt: chn00499492, ccid: 21373150-Z, pcid: 179545 }
-
-    bgp:
-       group_md5:
-       ipv4_md5: jutran7dEbUwr6c9
-       ipv6_md5: jutran7dEbUwr6c9
-       ipv4_prefix_limit: 15000
-       ipv4_prefix_limit_teardown: 90
-       ipv6_prefix_limit: 10000
-       ipv6_prefix_limit_teardown: 90
-       timers_keep: 60
-       timers_hold: 180
-       timers_min_hold: 45
-       peer_ipv4_1: 209.85.168.184
-       peer_ipv6_1: "2001:4860:2:1::16ce"
-       peer_ipv4_2: 96.34.3.2
-       peer_ipv6_2: "2001:2234:0:2::3"
-
-       peer_ipv4_multihop_1: 1.1.1.1
-       peer_ipv6_multihop_1: "2001::1"
-       peer_multihop_1_ttl: 4
-       peer_ipv4_multihop_2: 2.2.2.2
-       peer_ipv6_multihop_2: "2002::2"
-       peer_multihop_2_ttl: 4
-       local_as: 20115
-       remote_as: 20940
+    jira: CIOPS-29589
+    lag_local_ipv4_1: 206.223.123.219
+    lag_local_ipv6_1: 2001:504:0:3::7843:2
+    bgp: 
+        ipv4_prefix_limit: 100
+        ipv6_prefix_limit: 10
+        peer_ipv4_1: 206.223.123.244
+        peer_ipv6_1: 2001:504:0:3:0:2:2697:1
+        local_as: 20115
+        remote_as: 22697

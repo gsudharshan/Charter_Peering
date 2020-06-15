@@ -138,7 +138,7 @@ Router Name: {{ inventory_hostname }}
 {% if node.lag_id_1 is defined %}
 !LAG 1 Interface Configs!
 interface be{{ node.lag_id_1 }}
-interface be{{ node.lag_id_1 }} description "[TYPE={{ node.type|upper }}][BW={{ node.lag_bw_1 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grnt_1|upper }}][IP={{ node.bgp.peer_ipv4_1 }}]"
+interface be{{ node.lag_id_1 }} description [TYPE={{ node.type|upper }}][BW={{ node.lag_bw_1 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grnt_1|upper }}][IP={{ node.bgp.peer_ipv4_1 }}]
 interface be{{ node.lag_id_1 }} service-policy input DDOS_POLICER_POLICY
 interface be{{ node.lag_id_1 }} output CRS-QoS
 interface be{{ node.lag_id_1 }} ipv4 address {{ node.lag_local_ipv4_1 }}
@@ -167,7 +167,7 @@ interface {{ intf }} dampening 1 750 2000 4
 {% if node.lag_id_2 is defined %}         
 !LAG 2 Interface Configs!
 interface be{{ node.lag_id_2 }}
-interface be{{ node.lag_id_2 }} description "[TYPE={{ node.type|upper }}][BW={{ node.lag_bw_2 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grnt_2|upper }}][IP={{ node.bgp.peer_ipv4_2 }}]"
+interface be{{ node.lag_id_2 }} description [TYPE={{ node.type|upper }}][BW={{ node.lag_bw_2 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grnt_2|upper }}][IP={{ node.bgp.peer_ipv4_2 }}]
 interface be{{ node.lag_id_2 }} service-policy input DDOS_POLICER_POLICY
 interface be{{ node.lag_id_2 }} output CRS-QoS
 interface be{{ node.lag_id_2 }} ipv4 address {{ node.lag_local_ipv4_2 }}
@@ -226,7 +226,7 @@ router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ 
 router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP password clear {{ node.bgp.ipv4_md5 }}
 {% else %}
 {% endif %}
-{% if node.lag_id_2 is defined %} 
+{% if node.bgp.peer_ipv4_2 is defined %} 
 router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast multipath
 {% else %}
 {% endif %}
@@ -246,7 +246,7 @@ router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ 
 router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP password clear {{ node.bgp.ipv6_md5 }}
 {% else %}
 {% endif %}
-{% if node.lag_id_2 is defined %}
+{% if node.bgp.peer_ipv6_2 is defined %}
 router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv4 unicast multipath
 {% else %}
 {% endif %}
