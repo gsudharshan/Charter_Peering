@@ -36,11 +36,14 @@ def create_single_yaml(i):
     print("        peer_ipv6_1: " + (df.iloc[i, 12]))
     print("        local_as: " + str(int(df.iloc[i, 13])))
     print("        remote_as: " + str(int(df.iloc[i, 14])))
+    print("\n")
 for i in range(len(df.index)):
     j = i + 1
     if j >= len(df.index):
-        if i == len(df.index):
-            create_single_yaml(i)
+        if j == len(df.index):
+            router_check = df.iloc[i, 0] == df.iloc[i-1, 0]
+            if router_check is False:
+                create_single_yaml(i)
         continue
     router_check = df.iloc[i, 0] == df.iloc[j, 0]
     router_check1 = df.iloc[i, 0] == df.iloc[i-1, 0]
@@ -71,4 +74,7 @@ for i in range(len(df.index)):
         print("        peer_ipv6_2: " + (df.iloc[j, 12]))
     print("        local_as: " + str(int(df.iloc[i, 13])))
     print("        remote_as: " + str(int(df.iloc[i, 14])))
+    print("\n")
+
+
 
