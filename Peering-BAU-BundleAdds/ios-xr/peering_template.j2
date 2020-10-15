@@ -54,7 +54,7 @@ interface {{ intf }}
 interface {{ intf }} description [TYPE={{ node.type|upper }}][BW={{ node.lag_id_1_link_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt|upper }}][JIRA={{ node.jira|upper }}][CCID={{ intf_attr.ccid|upper }}][PCID={{ intf_attr.pcid|upper }}]
 interface {{ intf }} bundle id {{ node.lag_id_1 }} mode active
 interface {{ intf }} lacp period short
-interface {{ intf }} carrier-delay up 500 down 0
+interface {{ intf }} carrier-delay up 2000 down 0
 interface {{ intf }} dampening 1 750 2000 4
 
 {% endfor %}
@@ -72,7 +72,7 @@ interface {{ intf }}
 interface {{ intf }} description [TYPE={{ node.type|upper }}][BW={{ node.lag_id_2_link_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt|upper }}][JIRA={{ node.jira|upper }}][CCID={{ intf_attr.ccid|upper }}][PCID={{ intf_attr.pcid|upper }}]
 interface {{ intf }} bundle id {{ node.lag_id_2 }} mode active
 interface {{ intf }} lacp period short
-interface {{ intf }} carrier-delay up 500 down 0
+interface {{ intf }} carrier-delay up 2000 down 0
 interface {{ intf }} dampening 1 750 2000 4
 
 {% endfor %}
