@@ -140,13 +140,13 @@ Router Name: {{ inventory_hostname }}
 interface be{{ node.lag_id_1 }}
 interface be{{ node.lag_id_1 }} description [TYPE={{ node.type|upper }}][BW={{ node.lag_bw_1 }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][GRNT={{ node.lag_grnt_1|upper }}][IP={{ node.bgp.peer_ipv4_1 }}]
 interface be{{ node.lag_id_1 }} service-policy input DDOS_POLICER_POLICY
-interface be{{ node.lag_id_1 }} output CRS-QoS
+interface be{{ node.lag_id_1 }} service-policy output CRS-QoS
 interface be{{ node.lag_id_1 }} ipv4 address {{ node.lag_local_ipv4_1 }}
 interface be{{ node.lag_id_1 }} ipv6 address {{ node.lag_local_ipv6_1 }}
 interface be{{ node.lag_id_1 }} bundle minimum-active links 1
 interface be{{ node.lag_id_1 }} load-interval 30
-interface be{{ node.lag_id_1 }} flow ipv4 monitor NETFLOW_IPV4 sampler FNF_SAMPLER_MAP ingress
-interface be{{ node.lag_id_1 }} flow ipv6 monitor NETFLOW_IPV6 sampler FNF_SAMPLER_MAP ingress
+interface be{{ node.lag_id_1 }} flow ipv4 monitor NETFLOWv4 sampler FNF_SAMPLER_MAP ingress
+interface be{{ node.lag_id_1 }} flow ipv6 monitor NETFLOWv6 sampler FNF_SAMPLER_MAP ingress
 interface be{{ node.lag_id_1 }} dampening 1 750 2000 4
 interface be{{ node.lag_id_1 }} ipv4 access-group EDGE_IN_IPV4_FILTER ingress
 interface be{{ node.lag_id_1 }} ipv6 access-group EDGE_IN_IPV6_FILTER ingress
