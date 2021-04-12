@@ -212,62 +212,62 @@ end-policy
 !WARNING: CHECK IF THE PEER REQUIRES IGP-COST TO BE SENT AS MED!!!!! PD ENGINEER TO CHECK THIS!!!!
 
 
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP remote-as {{ node.bgp.remote_as }}
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP description "https://www.peeringdb.com/asn/{{ node.bgp.remote_as }}"
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast send-community-ebgp
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast route-policy AS{{ node.bgp.remote_as }}-IN in
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast maximum-prefix {{ node.bgp.ipv4_prefix_limit }} 80 restart 8
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast route-policy AS{{ node.bgp.remote_as }}-OUT out 
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast remove-private-AS
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP remote-as {{ node.bgp.remote_as }}
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP description "https://www.peeringdb.com/asn/{{ node.bgp.remote_as }}"
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast send-community-ebgp
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast route-policy AS{{ node.bgp.remote_as }}-IN in
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast maximum-prefix {{ node.bgp.ipv4_prefix_limit }} 80 restart 8
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast route-policy AS{{ node.bgp.remote_as }}-OUT out 
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast remove-private-AS
 {% if node.bgp.ipv4_md5 is defined %}
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP password clear {{ node.bgp.ipv4_md5 }}
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP password clear {{ node.bgp.ipv4_md5 }}
 {% else %}
 {% endif %}
 {% if node.bgp.peer_ipv4_2 is defined %} 
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast multipath
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast multipath
 {% else %}
 {% endif %}
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast soft-reconfiguration inbound always
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP address-family ipv4 unicast soft-reconfiguration inbound always
 
 
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP remote-as {{ node.bgp.remote_as }}
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP description "https://www.peeringdb.com/asn/{{ node.bgp.remote_as }}"
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast send-community-ebgp
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast route-policy AS{{ node.bgp.remote_as }}-IN-V6 in
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast maximum-prefix {{ node.bgp.ipv6_prefix_limit }} 80 restart 8
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast route-policy AS{{ node.bgp.remote_as }}-OUT-V6 out
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast remove-private-AS
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP remote-as {{ node.bgp.remote_as }}
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP description "https://www.peeringdb.com/asn/{{ node.bgp.remote_as }}"
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast send-community-ebgp
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast route-policy AS{{ node.bgp.remote_as }}-IN-V6 in
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast maximum-prefix {{ node.bgp.ipv6_prefix_limit }} 80 restart 8
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast route-policy AS{{ node.bgp.remote_as }}-OUT-V6 out
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast remove-private-AS
 {% if node.bgp.ipv6_md5 is defined %}
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP password clear {{ node.bgp.ipv6_md5 }}
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP password clear {{ node.bgp.ipv6_md5 }}
 {% else %}
 {% endif %}
 {% if node.bgp.peer_ipv6_2 is defined %}
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv4 unicast multipath
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv4 unicast multipath
 {% else %}
 {% endif %}
-router bgp {{ node.bgp.local_as }} neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast soft-reconfiguration inbound always
+router bgp 65200 neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP address-family ipv6 unicast soft-reconfiguration inbound always
 
 !Adding BGP Neighbor!
 
 {% if node.bgp.peer_ipv4_multihop_1 is defined %}
 router static address-family ipv4 unicast {{ node.bgp.peer_ipv4_multihop_1}}/32 {{ node.bgp.peer_ipv4_1 }} description {{ node.name|upper }}-multihop-next-hop
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_1 }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_1 }} ebgp-multihop {{ node.bgp.peer_multihop_1_ttl }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_1 }} update-source Loopback0
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_multihop_1 }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_multihop_1 }} ebgp-multihop {{ node.bgp.peer_multihop_1_ttl }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_multihop_1 }} update-source Loopback0
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_multihop_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
 {% if node.bgp.timers_keep is defined %}    
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_1 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_multihop_1 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
 {% else %}
 {% endif %}
 {% elif node.bgp.peer_ipv4_1 is defined %}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_1 }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_1 }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
 {% if node.bgp.timers_keep is defined %}    
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_1 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_1 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
 {% else %}
 {% endif %}
 {% else %}
@@ -276,19 +276,19 @@ router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_1 }} timers {{
 
 {% if node.bgp.peer_ipv4_multihop_2 is defined %}
 router static address-family ipv4 unicast {{ node.bgp.peer_ipv4_multihop_2}}/32 {{ node.bgp.peer_ipv4_2 }} description {{ node.name|upper }}-multihop-next-hop
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_2 }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_2 }} ebgp-multihop {{ node.bgp.peer_multihop_1_ttl }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_2 }} update-source Loopback0
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_2 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_multihop_2 }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_multihop_2 }} ebgp-multihop {{ node.bgp.peer_multihop_1_ttl }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_multihop_2 }} update-source Loopback0
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_multihop_2 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
 {% if node.bgp.timers_keep is defined %}    
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_2 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_multihop_2 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
 {% else %}
 {% endif %}
 {% elif node.bgp.peer_ipv4_2 is defined %}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_2 }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_2 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_2 }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_2 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
 {% if node.bgp.timers_keep is defined %}    
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_2 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv4_2 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
 {% else %}
 {% endif %}
 {% else %}
@@ -296,19 +296,19 @@ router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_2 }} timers {{
 
 {% if node.bgp.peer_ipv6_multihop_1 is defined %}
 router static address-family ipv6 unicast {{ node.bgp.peer_ipv6_multihop_1}}/128 {{ node.bgp.peer_ipv6_1 }} description {{ node.name|upper }}-multihop-next-hop
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_multihop_1 }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_multihop_1 }} ebgp-multihop {{ node.bgp.peer_multihop_1_ttl }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_multihop_1 }} update-source Loopback0
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_multihop_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_multihop_1 }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_multihop_1 }} ebgp-multihop {{ node.bgp.peer_multihop_1_ttl }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_multihop_1 }} update-source Loopback0
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_multihop_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
 {% if node.bgp.timers_keep is defined %}    
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_multihop_1 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_multihop_1 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
 {% else %}
 {% endif %}
 {% elif node.bgp.peer_ipv6_1 is defined  %}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_1 }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_1 }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
 {% if node.bgp.timers_keep is defined %}    
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_1 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_1 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
 {% else %}
 {% endif %}
 {% else %}
@@ -316,19 +316,19 @@ router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_1 }} timers {{
 
 {% if node.bgp.peer_ipv6_multihop_2 is defined %}
 router static address-family ipv6 unicast {{ node.bgp.peer_ipv6_multihop_2}}/128 {{ node.bgp.peer_ipv6_2 }} description {{ node.name|upper }}-multihop-next-hop
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_multihop_2 }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_multihop_2 }} ebgp-multihop {{ node.bgp.peer_multihop_2_ttl }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_multihop_2 }} update-source Loopback0
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_multihop_2 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_multihop_2 }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_multihop_2 }} ebgp-multihop {{ node.bgp.peer_multihop_2_ttl }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_multihop_2 }} update-source Loopback0
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_multihop_2 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
 {% if node.bgp.timers_keep is defined %}    
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_multihop_2 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_multihop_2 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
 {% else %}
 {% endif %}
 {% elif node.bgp.peer_ipv6_2 is defined %}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_2 }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_2 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_2 }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_2 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
 {% if node.bgp.timers_keep is defined %}    
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv6_2 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
+router bgp 65200 neighbor {{ node.bgp.peer_ipv6_2 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
 {% else %}
 {% endif %}
 {% else %}
@@ -472,4 +472,3 @@ show interface {{ intf }} | in "rate|drop|err"
 
 {% else %}
 {% endif %}
-
