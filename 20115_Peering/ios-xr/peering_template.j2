@@ -241,14 +241,14 @@ router static address-family ipv4 unicast {{ node.bgp.peer_ipv4_multihop_1}}/32 
 router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_1 }}
 router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_1 }} ebgp-multihop {{ node.bgp.peer_multihop_1_ttl }}
 router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_1 }} update-source Loopback15
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_NEIGHBOR_GROUP
+router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
 {% if node.bgp.timers_keep is defined %}    
 router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_multihop_1 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
 {% else %}
 {% endif %}
 {% elif node.bgp.peer_ipv4_1 is defined %}
 router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_1 }}
-router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_NEIGHBOR_GROUP
+router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_1 }} use neighbor-group AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
 {% if node.bgp.timers_keep is defined %}    
 router bgp {{ node.bgp.local_as }} neighbor {{ node.bgp.peer_ipv4_1 }} timers {{ node.bgp.timers_keep }} {{ node.bgp.timers_hold }} {{ node.bgp.timers_min_hold }}
 {% else %}
