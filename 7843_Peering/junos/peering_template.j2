@@ -65,8 +65,7 @@ show route {{ node.lag_local_ipv6_2 }}
 {% endif %}
 
 {% if node.bgp.peer_ipv4_1 is defined %}
-sh configuration | match p-{{ node.bgp.remote_as }}-{{ node.name|upper }} | display set
-#Expected Output: Ensure the new group being created doesnt exist already. if group already exists, notify P&D, only neighbor need to be added to existing group
+sh configuration | match {{ node.bgp.remote_as }} | display set
 #WARNING: If BGP group already existed, chances of overwrite possible!! USE CAUTION!!
 {% else %}
 {% endif %}
@@ -319,6 +318,7 @@ Router Name: {{ inventory_hostname }}
 show int ae{{ node.lag_id_1 }}
 show lacp interfaces ae{{ node.lag_id_1 }}
 show interfaces ae{{ node.lag_id_1 }} extensive | match err
+show configuration interfaces ae{{ node.lag_id_1 }} | display inheritance
 
 show route {{ node.lag_local_ipv4_1 }}
 show route {{ node.lag_local_ipv6_1 }}
@@ -332,6 +332,7 @@ ping {{node.bgp.peer_ipv6_1}} source {{node.lag_local_ipv6_1.split("/")[0]}} cou
 show int ae{{ node.lag_id_2 }}
 show lacp interfaces ae{{ node.lag_id_2 }}
 show interfaces ae{{ node.lag_id_2 }} extensive | match err
+show configuration interfaces ae{{ node.lag_id_2 }} | display inheritance
 
 show route {{ node.lag_local_ipv4_2 }}
 show route {{ node.lag_local_ipv6_2 }}
@@ -386,6 +387,7 @@ show route receive-protocol bgp {{ node.bgp.peer_ipv6_2 }}
 {% if node.lag_id_1 is defined %}
 {% for intf,intf_attr in node.lag_id_1_links.items() %}
 show interfaces {{ intf }}
+show configuration interfaces {{ intf }} | display inheritance
 show interfaces {{ intf }} extensive | match err
 {% endfor %}
 {% else %}
@@ -394,6 +396,7 @@ show interfaces {{ intf }} extensive | match err
 {% if node.lag_id_2 is defined %}   
 {% for intf,intf_attr in node.lag_id_2_links.items() %}
 show interfaces {{ intf }}
+show configuration interfaces {{ intf }} | display inheritance
 show interfaces {{ intf }} extensive | match err
 {% endfor %}
 {% else %}
