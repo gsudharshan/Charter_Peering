@@ -64,19 +64,10 @@ show route ipv6 unicast {{ node.lag_local_ipv6_2 }}
 {% endif %}
 
 {% if node.bgp.peer_ipv4_1 is defined %}
-sh run formal | i AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV4_NEIGHBOR_GROUP
-!Expected Output: Ensure the new group being created doesnt exist already. if group already exists, notify P&D, only neighbor need to be added to existing group
+sh run formal | i {{ node.bgp.remote_as }}
 !WARNING: If BGP group already existed, chances of overwrite possible!! USE CAUTION!!
 {% else %}
 {% endif %}
-
-{% if node.bgp.peer_ipv6_1 is defined %}
-sh run formal | i AS{{ node.bgp.remote_as }}_{{ node.name|upper }}_IPV6_NEIGHBOR_GROUP
-!Expected Output: Ensure the new group being created doesnt exist already. if group already exists, notify P&D, only neighbor need to be added to existing group
-!WARNING: If BGP group already existed, chances of overwrite possible!! USE CAUTION!!
-{% else %}
-{% endif %}
-
 
 {% if node.bgp.remote_as is defined %}
 show bgp all all sum | i {{ node.bgp.remote_as }}
