@@ -89,6 +89,7 @@ Router Name: {{ inventory_hostname }}
 
 {% if node.lag_id_1 is defined %}
 show int ae{{ node.lag_id_1 }}
+show configuration interfaces ae{{ node.lag_id_1 }} | display inheritance
 show lacp interfaces ae{{ node.lag_id_1 }}
 
 {% else %}
@@ -96,6 +97,7 @@ show lacp interfaces ae{{ node.lag_id_1 }}
 
 {% if node.lag_id_2 is defined %}
 show int ae{{ node.lag_id_2 }}
+show configuration interfaces ae{{ node.lag_id_2 }} | display inheritance
 show lacp interfaces ae{{ node.lag_id_2 }}
 
 {% else %}
@@ -104,6 +106,7 @@ show lacp interfaces ae{{ node.lag_id_2 }}
 {% if node.lag_id_1 is defined %}
 {% for intf,intf_attr in node.lag_id_1_links.items()|sort %}
 show interfaces {{ intf }}
+show configuration interfaces {{ intf }} | display inheritance
 show interfaces {{ intf }} extensive | match err
 {% endfor %}
 
@@ -113,6 +116,7 @@ show interfaces {{ intf }} extensive | match err
 {% if node.lag_id_2 is defined %}   
 {% for intf,intf_attr in node.lag_id_2_links.items()|sort %}
 show interfaces {{ intf }}
+show configuration interfaces {{ intf }} | display inheritance
 show interfaces {{ intf }} extensive | match err
 {% endfor %}
 
