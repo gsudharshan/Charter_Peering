@@ -136,11 +136,8 @@ set interfaces ae{{ node.lag_id_1 }} description "[TYPE={{ node.type|upper }}][B
 set interfaces ae{{ node.lag_id_1 }} aggregated-ether-options minimum-links 1
 set interfaces ae{{ node.lag_id_1 }} aggregated-ether-options link-speed {{ node.lag_id_1_link_bw }}g
 set interfaces ae{{ node.lag_id_1 }} aggregated-ether-options lacp active
-set interfaces ae{{ node.lag_id_1 }} unit 0 family inet apply-groups rpf
-set interfaces ae{{ node.lag_id_1 }} unit 0 family inet filter input EDGE_IN_IPV4_FILTER
+set interfaces ae{{ node.lag_id_1 }} apply-groups EXTERNAL_PEERING_INTERFACE_GROUP
 set interfaces ae{{ node.lag_id_1 }} unit 0 family inet address {{ node.lag_local_ipv4_1 }}
-set interfaces ae{{ node.lag_id_1 }} unit 0 family inet6 apply-groups IPv6-RPF-GROUP
-set interfaces ae{{ node.lag_id_1 }} unit 0 family inet6 filter input EDGE_IN_IPV6_FILTER
 set interfaces ae{{ node.lag_id_1 }} unit 0 family inet6 address {{ node.lag_local_ipv6_1 }}
 set class-of-service interfaces ae{{ node.lag_id_1 }} apply-groups PEER_QOS
 
@@ -148,14 +145,8 @@ set class-of-service interfaces ae{{ node.lag_id_1 }} apply-groups PEER_QOS
 
 {% for intf, intf_attr in node.lag_id_1_links.items()|sort %}
 set interfaces {{ intf }} description "[TYPE={{ node.type|upper }}][BW={{ node.lag_id_1_link_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt|upper }}][JIRA={{ node.jira|upper }}][CCID={{ intf_attr.ccid|upper }}][PCID={{ intf_attr.pcid|upper }}]"
+set interfaces {{ intf }} apply-groups EXTERNAL_PEERING_INTERFACE_GROUP
 set interfaces {{ intf }} gigether-options 802.3ad ae{{ node.lag_id_1 }}
-set interfaces {{ intf }} hold-time up 500
-set interfaces {{ intf }} hold-time down 0
-set interfaces {{ intf }} damping half-life 1
-set interfaces {{ intf }} damping max-suppress 4
-set interfaces {{ intf }} damping reuse 750
-set interfaces {{ intf }} damping suppress 2000
-set interfaces {{ intf }} damping enable
 {% endfor %}
 {% else %}
 {% endif %}
@@ -167,11 +158,8 @@ set interfaces ae{{ node.lag_id_2 }} description "[TYPE={{ node.type|upper }}][B
 set interfaces ae{{ node.lag_id_2 }} aggregated-ether-options minimum-links 1
 set interfaces ae{{ node.lag_id_2 }} aggregated-ether-options link-speed {{ node.lag_id_2_link_bw}}g
 set interfaces ae{{ node.lag_id_2 }} aggregated-ether-options lacp active
-set interfaces ae{{ node.lag_id_2 }} unit 0 family inet apply-groups rpf
-set interfaces ae{{ node.lag_id_2 }} unit 0 family inet filter input EDGE_IN_IPV4_FILTER
+set interfaces ae{{ node.lag_id_2 }} apply-groups EXTERNAL_PEERING_INTERFACE_GROUP
 set interfaces ae{{ node.lag_id_2 }} unit 0 family inet address {{ node.lag_local_ipv4_2 }}
-set interfaces ae{{ node.lag_id_2 }} unit 0 family inet6 apply-groups IPv6-RPF-GROUP
-set interfaces ae{{ node.lag_id_2 }} unit 0 family inet6 filter input EDGE_IN_IPV6_FILTER
 set interfaces ae{{ node.lag_id_2 }} unit 0 family inet6 address {{ node.lag_local_ipv6_2 }}
 set class-of-service interfaces ae{{ node.lag_id_2 }} apply-groups PEER_QOS
 
@@ -179,14 +167,8 @@ set class-of-service interfaces ae{{ node.lag_id_2 }} apply-groups PEER_QOS
 
 {% for intf, intf_attr in node.lag_id_2_links.items()|sort %}
 set interfaces {{ intf }} description "[TYPE={{node.type|upper}}][BW={{ node.lag_id_2_link_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt|upper }}][JIRA={{ node.jira|upper }}][CCID={{ intf_attr.ccid|upper }}][PCID={{ intf_attr.pcid|upper }}]"
+set interfaces {{ intf }} apply-groups EXTERNAL_PEERING_INTERFACE_GROUP
 set interfaces {{ intf }} gigether-options 802.3ad ae{{ node.lag_id_2 }}
-set interfaces {{ intf }} hold-time up 500
-set interfaces {{ intf }} hold-time down 0
-set interfaces {{ intf }} damping half-life 1
-set interfaces {{ intf }} damping max-suppress 4
-set interfaces {{ intf }} damping reuse 750
-set interfaces {{ intf }} damping suppress 2000
-set interfaces {{ intf }} damping enable
 {% endfor %}
 {% else %}
 {% endif %}
