@@ -139,6 +139,7 @@ set class-of-service interfaces ae{{ node.lag_id_1 }} apply-groups PEER_QOS
 set interfaces {{ intf }} description "[TYPE={{node.type|upper}}][BW={{ node.lag_id_1_link_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_1 }}][GRNT={{ intf_attr.int_grnt|upper }}][JIRA={{ node.jira|upper }}][CCID={{ intf_attr.ccid|upper }}][PCID={{ intf_attr.pcid|upper }}]"
 set interfaces {{ intf }} apply-groups EXTERNAL_PEERING_INTERFACE_GROUP
 set interfaces {{ intf }} gigether-options 802.3ad ae{{ node.lag_id_1 }}
+set protocols lldp interface {{ intf }} disable
 {% endfor %}
 {% else %}
 {% endif %}
@@ -161,6 +162,7 @@ set class-of-service interfaces ae{{ node.lag_id_2 }} apply-groups PEER_QOS
 set interfaces {{ intf }} description "[TYPE={{node.type|upper}}][BW={{ node.lag_id_2_link_bw }}G][NAME={{ node.name|upper }}][AS={{ node.bgp.remote_as }}][LAG={{ node.lag_id_2 }}][GRNT={{ intf_attr.int_grnt|upper }}][JIRA={{ node.jira|upper }}][CCID={{ intf_attr.ccid|upper }}][PCID={{ intf_attr.pcid|upper }}]"
 set interfaces {{ intf }} apply-groups EXTERNAL_PEERING_INTERFACE_GROUP
 set interfaces {{ intf }} gigether-options 802.3ad ae{{ node.lag_id_2 }}
+set protocols lldp interface {{ intf }} disable
 {% endfor %}
 {% else %}
 {% endif %}
