@@ -135,6 +135,7 @@ interface be{{ node.lag_id_1 }} service-policy input DDOS_POLICER_POLICY
 interface be{{ node.lag_id_1 }} ipv4 address {{ node.lag_local_ipv4_1 }}
 interface be{{ node.lag_id_1 }} ipv6 address {{ node.lag_local_ipv6_1 }}
 interface be{{ node.lag_id_1 }} load-interval 30
+interface be{{ node.lag_id_1 }} lldp transmit disable
 interface be{{ node.lag_id_1 }} flow ipv4 monitor NETFLOW_IPV4 sampler FNF_SAMPLER_MAP ingress
 interface be{{ node.lag_id_1 }} flow ipv6 monitor NETFLOW_IPV6 sampler FNF_SAMPLER_MAP ingress
 interface be{{ node.lag_id_1 }} flow mpls monitor NETFLOW_MPLS sampler FNF_SAMPLER_MAP ingress
@@ -166,6 +167,7 @@ interface be{{ node.lag_id_2 }} service-policy input DDOS_POLICER_POLICY
 interface be{{ node.lag_id_2 }} ipv4 address {{ node.lag_local_ipv4_2 }}
 interface be{{ node.lag_id_2 }} ipv6 address {{ node.lag_local_ipv6_2 }}    
 interface be{{ node.lag_id_2 }} load-interval 30
+interface be{{ node.lag_id_2 }} lldp transmit disable
 interface be{{ node.lag_id_2 }} flow ipv4 monitor NETFLOW_IPV4 sampler FNF_SAMPLER_MAP ingress
 interface be{{ node.lag_id_2 }} flow ipv6 monitor NETFLOW_IPV6 sampler FNF_SAMPLER_MAP ingress
 interface be{{ node.lag_id_2 }} flow mpls monitor NETFLOW_MPLS sampler FNF_SAMPLER_MAP ingress
